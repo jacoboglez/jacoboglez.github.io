@@ -1,0 +1,208 @@
+<head>
+   <meta charset="UTF-8">
+   <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content=""> -->
+
+   <!--Replace with your tailwind.css once created-->
+   <link rel="stylesheet" href="https://unpkg.com/tailwindcss/dist/tailwind.min.css">
+
+   <!-- BLOCKS -->
+   <!-- https://mertjf.github.io/tailblocks/ -->
+   <!-- https://github.com/aniftyco/awesome-tailwindcss#ui-libraries-components--templates -->
+
+   <title>Jacobo G. Baldonedo</title>
+
+   <!-- https://css-tricks.com/using-svg/ -->
+   <style>
+      ul.papers {
+         list-style-image: url("imgs/document-text.png");
+      }
+   </style>
+
+</head>
+
+<body class="flex flex-col min-h-screen ">
+
+   <!-- HEADER -->
+   <header class="text-gray-700 body-font">
+      <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+         <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0">
+            <!-- Logo -->
+            <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
+               stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-orange-500 rounded-full"
+               viewBox="0 0 24 24"> -->
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <span class="ml-3 text-xl">Jacobo</span>
+         </a>
+         <nav
+            class="md:mr-auto md:ml-4 md:py-1 md:pl-4 md:border-l md:border-gray-400	flex flex-wrap items-center text-base justify-center">
+            <a class="mr-5 hover:text-gray-900">Publications</a>
+            <a class="mr-5 hover:text-gray-900">Teaching</a>
+            <a class="mr-5 hover:text-gray-900">CV</a>
+            <!-- <a class="mr-5 hover:text-gray-900">Fourth Link</a> -->
+         </nav>
+         <!-- Right button -->
+         <!-- <button
+            class="inline-flex items-center bg-gray-200 border-0 py-1 px-3 focus:outline-none hover:bg-gray-300 rounded text-base mt-4 md:mt-0">Button
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+               class="w-4 h-4 ml-1" viewBox="0 0 24 24">
+               <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+         </button> -->
+      </div>
+   </header>
+
+
+   <!-- MAIN  -->
+   <main class="flex-grow">
+
+      <!-- BIOGRAPY -->
+      <section class="text-gray-700 body-font">
+         <div class="container px-5 py-24 mx-auto flex flex-col">
+            <!-- TOP IMAGE  -->
+            <!-- <div class="lg:w-4/6 mx-auto">
+               <div class="rounded-lg h-64 overflow-hidden">
+                  <img alt="content" class="object-cover object-center h-full w-full"
+                  src="https://dummyimage.com/1200x500">
+               </div> -->
+
+            <!-- Left -->
+            <div class="flex flex-col sm:flex-row mt-10">
+               <div class="sm:w-1/3 text-center sm:pr-8 sm:py-8">
+                  <div class="w-20 h-20 rounded-full inline-flex items-center justify-center bg-gray-200 text-gray-400">
+                     <!-- Placeholder -->
+                     <!-- <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" class="w-10 h-10" viewBox="0 0 24 24">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                     </svg> -->
+                     <img src="imgs/everest.png" alt="Profile" width="500" height="600">
+                  </div>
+                  <div class="flex flex-col items-center text-center justify-center">
+                     <h2 class="font-medium title-font mt-4 text-gray-900 text-lg">Jacobo G. Baldonedo</h2>
+                     <div class="w-12 h-1 bg-orange-500 rounded mt-2 mb-4"></div>
+                     <p class="text-base text-gray-600">PhD researcher at the University of Vigo.</p>
+                  </div>
+               </div>
+
+               <!-- Right -->
+               <div
+                  class="sm:w-2/3 sm:pl-8 sm:py-8 sm:border-l border-gray-300 sm:border-t-0 border-t mt-4 pt-4 sm:mt-0 text-center sm:text-left">
+                  <p class="leading-relaxed text-lg mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                     do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+                     nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                     in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+                     occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                  <a class="text-orange-500 inline-flex items-center">Learn More
+                     <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" class="w-4 h-4 ml-2" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7"></path>
+                     </svg>
+                  </a>
+               </div>
+            </div>
+            <!-- </div> -->
+         </div>
+      </section>
+
+      <!-- RECENT PUBLICATIONS -->
+      <section class="text-gray-700 body-font">
+         <div class="container px-5 py-24 mx-auto flex flex-wrap">
+
+            <h2 class="sm:text-3xl text-2xl text-gray-900 font-medium title-font mb-2 md:w-1/3">Recent publications</h2>
+
+            <div class="md:w-2/3 md:pl-6">
+
+               <!-- First paper -->
+               <div class="md:flex-grow  mb-3">
+                  <div class="text-xl font-bold block">
+                     Finite Element Validation of an Energy Attenuator for the Design of a Formula Student Car.
+                  </div>
+                  <!-- <p class="leading-relaxed">Brief description. </p> -->
+                  <a href="#" target="_blank" class="bg-transparent hover:bg-orange-500 text-orange-500 font-semibold hover:text-white py-0 px-1 border border-orange-500 hover:border-transparent rounded">
+                     PDF
+                  </a>
+                  <!-- <a class="text-orange-500 inline-flex items-center mt-0">Read More
+                     <svg class="w-4 h-4 ml-2" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                     </svg>
+                  </a> -->
+               </div>
+
+               <!-- Second paper -->
+               <div class="md:flex-grow  mb-3">
+                  <div class="block text-xl font-bold">
+                     Numerical analysis of a bone remodeling model with damage. 
+                  </div>
+                  <!-- <p class="leading-relaxed">Brief description. </p> -->
+                  <a href="#" target="_blank" class="bg-transparent hover:bg-orange-500 text-orange-500 font-semibold hover:text-white py-0 px-1 border border-orange-500 hover:border-transparent rounded">
+                     PDF
+                   </a>
+               </div>
+
+               <!-- Third paper -->
+               <div class="md:flex-grow  mb-3">
+                  <div class="text-xl font-bold block mb-0">
+                     Analysis of damage models for cortical bone.
+                  </div>
+                  <!-- <p class="leading-relaxed">Brief description. </p> -->
+                  <a href="#" target="_blank" class="bg-transparent hover:bg-orange-500 text-orange-500 font-semibold hover:text-white py-0 px-1 border border-orange-500 hover:border-transparent rounded">
+                     PDF
+                  </a>
+               </div>
+
+               <div class="flex md:mt-4 mt-6">
+                  <!-- <button
+                     class="inline-flex text-white bg-orange-500 border-0 py-1 px-4 focus:outline-none hover:bg-orange-600 rounded">Button
+                  </button> -->
+                  <a class="text-orange-500 inline-flex items-center ml-4">See all
+                     <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" class="w-4 h-4 ml-2" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7"></path>
+                     </svg>
+                  </a>
+
+               </div>
+            </div>
+         </div>
+      </section>
+
+
+
+   </main>
+
+
+
+   <!-- FOOTER  -->
+   <!-- https://dev.to/timosville/sticky-footer-using-tailwind-css-225p -->
+   <footer class="text-gray-700 body-font">
+      <div class="bg-gray-200">
+         <div class="container mx-auto py-4 px-5 flex flex-wrap flex-col sm:flex-row">
+            <p class="text-gray-500 text-sm text-center sm:text-left">© 2020 jacoboglez —
+               <a href="https://www.youtube.com/watch?v=DLzxrzFCyOs" rel="noopener noreferrer" class="text-gray-600 ml-1"
+                  target="_blank">@jacoboglez</a>
+            </p>
+            <span class="inline-flex sm:ml-auto sm:mt-0 mt-2 justify-center sm:justify-start">
+               <a href="https://github.com/jacoboglez/"  target="_blank" class="text-gray-500">
+                  <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  class="w-5 h-5" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+               </a>
+               <a href="https://www.linkedin.com/in/jacoboglez/"  target="_blank" class="ml-3 text-gray-500">
+                  <svg fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                     stroke-width="0" class="w-5 h-5" viewBox="0 0 24 24">
+                     <path stroke="none"
+                        d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"></path>
+                     <circle cx="4" cy="4" r="2" stroke="none"></circle>
+                  </svg>
+               </a>
+            </span>
+         </div>
+      </div>
+   </footer>
+</body>
