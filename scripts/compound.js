@@ -51,7 +51,7 @@ var newDiv = `
                     Annual addition
                 </label>
             </div>
-            <div class="md:w-1/3">
+            <div class="w-2/3 md:w-2/3 lg:w-1/3">
                 <input type="text" id="addition_${p}"
                     class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-orange-500">
             </div>
@@ -64,7 +64,7 @@ var newDiv = `
                     Number of years
                 </label>
             </div>
-            <div class="md:w-1/3">
+            <div class="w-2/3 md:w-2/3 lg:w-1/3">
                 <input type="text" id="years_${p}"
                     class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-orange-500">
             </div>
@@ -77,7 +77,7 @@ var newDiv = `
                     Interest rate
                 </label>
             </div>
-            <div class="md:w-1/3">
+            <div class="w-2/3 md:w-2/3 lg:w-1/3">
                 <input type="text" id="interest_${p}"
                     class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-orange-500">
             </div>
@@ -103,9 +103,8 @@ function newPeriod() {
 
     newDiv.innerHTML = newPeriodDiv(periods)
 
-    let sB = document.getElementById("submitDiv")
+    let sB = document.getElementById("globalResults")
     form.insertBefore(newDiv, sB)
-    // form.append(newDiv)
 
     if (periods>10) {
         var nP = document.getElementById("newPeriod")
@@ -118,6 +117,7 @@ function newPeriod() {
 
 function compoundInterest() {
     let P = Number(form.initialFunds_1.value);
+    let total_invested = 0;
     for (let i = 1; i <= periods; i++) {
 
         // FV =	P*z^Y + c(z + z^2 + . . . + z^Y)
@@ -131,7 +131,6 @@ function compoundInterest() {
         let n = 1;
         let Y = Number(form["years_"+i].value);
         let c = Number(form["addition_"+i].value)
-        // const c = Number(monthlyAddition.value) * 12
 
         const z = 1 + r;
 
@@ -139,6 +138,7 @@ function compoundInterest() {
             c = c*12;
         }
 
+        total_invested += c * Y;
         let sum = 0;
 
         sum = (z ** (Y + 1) - z) / (z - 1);
@@ -148,12 +148,22 @@ function compoundInterest() {
         P = FV
 
         let partialResult = document.getElementById('result_'+i);
-        // partialResult.textContent = 'Future Value = ' + FV.toFixed(2);
         partialResult.textContent = 'Future Value = ' + addSpaces(FV.toFixed(2));
 
-
     } 
-    // result.textContent = 'FV = ' + FV;
+
+    // TOTAL INVESTED
+    let totInvestedP = document.getElementById('gR_totInv');
+    totInvestedP.textContent = 'Total invested = ' + addSpaces(total_invested.toFixed(2));
+    
+    // NET RESULT
+    let netBenefitP = document.getElementById('gR_netBen');
+    netBenefitP.textContent = 'Net benefit = ' + addSpaces((FV - total_invested).toFixed(2));
+
+    let globalResults = document.getElementById('gR_totInv');
+
+
+
     return false;
 }
 
