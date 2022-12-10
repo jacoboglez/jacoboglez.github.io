@@ -1,13 +1,28 @@
+<body style="background-color: #cfd0d3 ;">
+  <!-- https://stackoverflow.com/questions/356809/best-way-to-center-a-div-on-a-page-vertically-and-horizontally -->
+  <div style="   color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);">
+    <canvas id="my-canvas" width="1200" height="360" style="margin: auto; background-color: #cfd0d3;"></canvas>
+  </div>
+  
+</body>
 
-<canvas id="my-canvas" width="1400" height="650"></canvas>
+
 
 <script>
 
 clock()
 
 window.setInterval(clock, 4000);
-    
+
 function clock() {
+  
+  var canvasId = 'my-canvas';
 
   // Get the current time
   var now = new Date();
@@ -21,57 +36,40 @@ function clock() {
   var minute1 = Math.floor(minute/10);
   var minute2 = minute % 10
 
-  // document.write(hour1)
-  // document.write(hour2)
-  // document.write(minute1)
-  // document.write(minute2)
-
   // Define some sizes
-  var squareSize = 100;
-  var squareSpace = 20; 
-  var boxSpace = 40;
+  var canvas = document.getElementById(canvasId);
+  var canvasWidth = canvas.width;
+  var canvasHeight = canvas.height;
 
-  var canvasId = 'my-canvas';
+  var squareSize = Math.min( Math.floor(100*canvasWidth/1200), Math.floor(100*canvasHeight/350) ); //100 for reference
+  var squareSpace = Math.floor(squareSize/5); // 20
+  var boxSpace = Math.floor(squareSize/2.5); // 40
 
-  // // Get a reference to the canvas element on the page
-  // var canvas = document.getElementById('my-canvas');
+  var x = Math.floor(canvasWidth/11.2)
 
-  // // Get the width and height of the canvas
-  // var canvasWidth = canvas.width;
-  // var canvasHeight = canvas.height;
-
-  // // Create a new drawing context for the canvas
-  // var context = canvas.getContext('2d');
-
-  // // Set the fill style to a color of your choice
-  // context.fillStyle = 'red';
-
-  // // Set the stroke style to a color of your choice
-  // context.strokeStyle = '#000000';
-
-  // context.lineWidth = 5;
-
-  x1 = 20;
-  y0 = 20;
+  x1 = 5;
+  y = 5;
 
   x2 = x1 + 1*(squareSize+squareSpace) + boxSpace
   x3 = x2 + 3*(squareSize+squareSpace) + boxSpace
   x4 = x3 + 2*(squareSize+squareSpace) + boxSpace
 
+  xf = x4 + 3*(squareSize+squareSpace) + boxSpace
 
 
-  // window.setInterval(function() {
+  yf = y + 3*(squareSize+squareSpace) + boxSpace
+
   // First box
-  drawGrid(canvasId, 3, 1, x1, y0, squareSize, squareSpace, hour1, 'red');
+  drawGrid(canvasId, 3, 1, x1, y, squareSize, squareSpace, hour1, 'red');
 
   // Second box
-  drawGrid(canvasId, 3, 3, x2, y0, squareSize, squareSpace, hour2, 'blue');
+  drawGrid(canvasId, 3, 3, x2, y, squareSize, squareSpace, hour2, 'blue');
 
   // Third box
-  drawGrid(canvasId, 3, 2, x3, y0, squareSize, squareSpace, minute1, 'green');
+  drawGrid(canvasId, 3, 2, x3, y, squareSize, squareSpace, minute1, 'green');
 
   // Fourth box
-  drawGrid(canvasId, 3, 3, x4, y0, squareSize, squareSpace, minute2, 'orange');
+  drawGrid(canvasId, 3, 3, x4, y, squareSize, squareSpace, minute2, 'orange');
 
 }
 
