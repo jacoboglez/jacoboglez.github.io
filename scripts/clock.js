@@ -24,15 +24,11 @@ function clock() {
   var canvas = document.getElementById(canvasId);
   var canvasWidth = canvas.width;
   var canvasHeight = canvas.height;
-  console.log(canvasWidth)
-  console.log(canvasHeight)
-  console.log()
 
   // Resize
   var container = document.getElementById(containerId);
   canvas.width = container.clientWidth;
   canvas.height = container.clientHeight;
-  // console.log(container)
 
   var squareSizeX = Math.floor( 100 * canvasWidth / 1380 );
   var squareSizeY = Math.floor( 100 * canvasHeight / 540 );
