@@ -1,134 +1,22 @@
 <body style="background-color: #cfd0d3 ;">
+
   <!-- https://stackoverflow.com/questions/356809/best-way-to-center-a-div-on-a-page-vertically-and-horizontally -->
-  <div style="   color: white;
+  <div id="container" style="color: white;
   position: absolute;
   top: 50%;
   left: 50%;
   -ms-transform: translateX(-50%) translateY(-50%);
   -webkit-transform: translate(-50%,-50%);
-  transform: translate(-50%,-50%);">
-    <canvas id="my-canvas" width="1200" height="360" style="margin: auto; background-color: #cfd0d3;"></canvas>
+  transform: translate(-50%,-50%);
+  width: 100%;
+  height: 100%">
+
+    <canvas id="my-canvas" width="100%" height="100%" style="margin: auto; background-color: #cfd0d3;"></canvas>
+
   </div>
   
 </body>
 
 
 
-<script>
-
-clock()
-
-window.setInterval(clock, 4000);
-
-function clock() {
-  
-  var canvasId = 'my-canvas';
-
-  // Get the current time
-  var now = new Date();
-
-  var hour = now.getHours();
-  var minute = now.getMinutes();
-
-  // Get the first and second digits of the hours and minutes
-  var hour1 = Math.floor(hour/10);
-  var hour2 = hour % 10
-  var minute1 = Math.floor(minute/10);
-  var minute2 = minute % 10
-
-  // Define some sizes
-  var canvas = document.getElementById(canvasId);
-  var canvasWidth = canvas.width;
-  var canvasHeight = canvas.height;
-
-  var squareSize = Math.min( Math.floor(100*canvasWidth/1200), Math.floor(100*canvasHeight/350) ); //100 for reference
-  var squareSpace = Math.floor(squareSize/5); // 20
-  var boxSpace = Math.floor(squareSize/2.5); // 40
-
-  var x = Math.floor(canvasWidth/11.2)
-
-  x1 = 5;
-  y = 5;
-
-  x2 = x1 + 1*(squareSize+squareSpace) + boxSpace
-  x3 = x2 + 3*(squareSize+squareSpace) + boxSpace
-  x4 = x3 + 2*(squareSize+squareSpace) + boxSpace
-
-  xf = x4 + 3*(squareSize+squareSpace) + boxSpace
-
-
-  yf = y + 3*(squareSize+squareSpace) + boxSpace
-
-  // First box
-  drawGrid(canvasId, 3, 1, x1, y, squareSize, squareSpace, hour1, 'red');
-
-  // Second box
-  drawGrid(canvasId, 3, 3, x2, y, squareSize, squareSpace, hour2, 'blue');
-
-  // Third box
-  drawGrid(canvasId, 3, 2, x3, y, squareSize, squareSpace, minute1, 'green');
-
-  // Fourth box
-  drawGrid(canvasId, 3, 3, x4, y, squareSize, squareSpace, minute2, 'orange');
-
-}
-
-
-function drawGrid(canvasId, rows, columns, x0, y0, squareSize, space, Ncolored, color) {
-
-  // Get a reference to the canvas element on the page
-  var canvas = document.getElementById(canvasId);
-
-  // Create a new drawing context for the canvas
-  var context = canvas.getContext('2d');
-
-  // Set the fill style to a color of your choice
-  context.fillStyle = 'red';
-
-  // Set the stroke style to a color of your choice
-  context.strokeStyle = '#000000';
-
-  context.lineWidth = 5;
-
-  // I need to decide which of the rows by columns squares are going to be colored.
-  // To achieve this, I create an array with as many ones as colored squares and need 
-  // and zeros until I reach the size rows*columns.
-
-  var filled = new Array(rows*columns);
-  for (var i = 0; i < filled.length; i++) {
-    if (i < Ncolored) {
-      filled[i] = 1; 
-    } else {
-      filled[i] = 0; 
-    }
-  }
-  
-  // // Now, I shuffle the array to put the colored squares in random order
-  filled.sort(function(a, b) {
-    return Math.random() - 0.5;
-  });
-
-  // Loop over the number of squares you want to draw
-  for (var row = 0; row < rows; row++) {
-    for (var col = 0; col < columns; col++) {
-      // Calculate the x and y position of the square
-      var x = x0 + (squareSize+space) * col;
-      var y = y0 + (squareSize+space) * row;
-
-      // Check if that square should be colored
-      if (filled[col*rows + row]==1) {
-        context.fillStyle = color;
-      } else {
-        context.fillStyle = 'white';
-      }
-
-      // Draw the square at the calculated position
-      context.strokeRect(x, y, squareSize, squareSize);
-      context.fillRect(x, y, squareSize, squareSize);
-    }
-  }
-
-}
-
-
-</script>
+<script src="scripts/clock.js" defer></script>
