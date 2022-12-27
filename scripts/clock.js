@@ -1,7 +1,10 @@
+
+clock()
 clock()
 
 window.setInterval(clock, 4000);
 window.onresize = clock;
+
 
 function clock() {
 
@@ -54,11 +57,9 @@ function clock() {
     x1 = squareSize + (canvasWidth - xf) / 2;
   }
 
-
   x2 = x1 + 1 * (squareSize + squareSpace) + boxSpace
   x3 = x2 + 3 * (squareSize + squareSpace) + boxSpace
   x4 = x3 + 2 * (squareSize + squareSpace) + boxSpace
-
 
   // First box
   drawGrid(canvasId, 3, 1, x1, y, squareSize, squareSpace, hour1, 'red');
