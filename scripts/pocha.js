@@ -60,17 +60,8 @@ document.addEventListener('DOMContentLoaded', function () {
             // Add the new player to the players array
             players.push(player);
 
-            // Create a new list item (li) to display the player info
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-                <span>${player.name}:</span>
-                <span class="mx-4"><span id="score_${player.name}">${player.score}</span></span>
-                <button class="bg-green-500 text-white p-2 mt-2 mr-2 rounded-md" onclick="addPoints('${player.name}')">+5</button>
-                <button class="bg-red-500 text-white p-2 mt-2 rounded-md" onclick="subtractPoints('${player.name}')">-5</button>
-            `;
-
             // Append the list item to the player list
-            playerList.appendChild(listItem);
+            playerList.appendChild(createPlayerListItem(player) );
 
             // Clear the input field
             playerNameInput.value = '';
