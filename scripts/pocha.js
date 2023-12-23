@@ -104,8 +104,8 @@ function createPlayerListItem(player){
     listItem.innerHTML = `
                 <span>${player.name}:</span>
                 <span class="mx-4"><span id="score_${player.name}">${player.score}</span></span>
-                <button class="bg-red-500 text-white p-2 mt-2 rounded-md" onclick="subtractPoints('${player.name}')">-5</button>
-                <button class="bg-green-500 text-white p-2 mt-2 mr-2 rounded-md" onclick="addPoints('${player.name}')">+5</button>
+                <button style="touch-action: manipulation;" class="bg-red-500 text-white p-2 mt-2 rounded-md" onclick="subtractPoints('${player.name}')">-5</button>
+                <button style="touch-action: manipulation;" class="bg-green-500 text-white p-2 mt-2 mr-2 rounded-md" onclick="addPoints('${player.name}')">+5</button>
             `;
     return listItem
 }
