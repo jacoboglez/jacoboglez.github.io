@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocha</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-md shadow-md">
+        <h1 class="text-2xl font-semibold mb-4">Pocha Tracker</h1>
+        <div class="flex mb-4">
+            <input id="playerName" type="text" class="w-full rounded-l-md px-2 py-1 focus:outline-none"
+                placeholder="Nombre del jugador">
+            <button id="addPlayer" class="bg-blue-500 text-white px-4 rounded-r-md hover:bg-blue-600">Añadir jugador</button>
+        </div>
+        <ul id="playerList"></ul>
+        <button id="finishRound" class="bg-green-500 text-white px-4 py-2 mt-4 w-full hover:bg-green-600 rounded-md">Acabar mano</button>
+        <ul id="roundScores" class="mt-4"></ul>
+        <button id="resetAllButton" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-full hover:bg-red-600">Borrar todo</button>
+    </div>
+
+    <script src="scripts/pocha_v01.js?001002"></script>
+</body>
+
+</html>

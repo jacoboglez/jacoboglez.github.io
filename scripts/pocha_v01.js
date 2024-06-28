@@ -42,23 +42,19 @@ document.addEventListener('DOMContentLoaded', function () {
             // Calculate the lowest score among existing players
             if (players.length > 0) {
                 var lowestScore = Number.MAX_VALUE;
-                var lowestRank = -1;
                 for (const currentPlayer of players) {
                     if (currentPlayer.score < lowestScore) {
                         lowestScore = currentPlayer.score;
-                        lowestRank = currentPlayer.rank;
                     }
                 }
             } else {
-                var lowestScore = 0;
-                var lowestRank = 1;
+                var lowestScore = 0
             }
 
             // Create a new player object
             const player = {
                 name: playerName,
-                score: lowestScore, // Initialize the score to 0
-                rank: lowestRank
+                score: lowestScore // Initialize the score to 0
             };
 
             // Add the new player to the players array
@@ -77,32 +73,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // Event listener for the "Finish Round" button
     finishRoundButton.addEventListener('click', () => {
         
-        clearPlayerList()
-
         // Create an object to store round scores
         const roundScore = {};
         roundNumber = roundNumber + 1;
 
-        const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
-        // Create list items for each player with their rank
-        r = 0;
-        var ant_score = 99999999999999;
-        sortedPlayers.forEach((player) => {
-            r = r + 1;
-            if (player.score == ant_score) {
-                r = r - 1;
-            } 
-            ant_score = player.score;
-            player.rank = r;
-            const listItem = createPlayerListItem(player);
-            playerList.appendChild(listItem);
+        // Get scores for each player
+        players.forEach(player => {
             roundScore[player.name] = player.score;
         });
-
-        // // Get scores for each player
-        // players.forEach(player => {
-        //     roundScore[player.name] = player.score;
-        // });
 
         // Add the round scores to the roundScores array
         roundScores.push(roundScore);
@@ -124,7 +102,6 @@ function createPlayerListItem(player){
     // Create a new list item (li) to display the player info
     const listItem = document.createElement('li');
     listItem.innerHTML = `
-            <span">${player.rank}.</span>
                 <span>${player.name}:</span>
                 <span class="mx-4"><span id="score_${player.name}">${player.score}</span></span>
                 <button style="touch-action: manipulation;" class="bg-red-500 text-white p-2 mt-2 rounded-md" onclick="subtractPoints('${player.name}')">-5</button>
