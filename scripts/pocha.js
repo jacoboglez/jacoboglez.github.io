@@ -128,7 +128,8 @@ function createPlayerListItem(player){
                 <span>${player.name}:</span>
                 <span class="mx-4"><span id="score_${player.name}">${player.score}</span></span>
                 <button style="touch-action: manipulation;" class="bg-red-500 text-white p-2 mt-2 rounded-md" onclick="subtractPoints('${player.name}')">-5</button>
-                <button style="touch-action: manipulation;" class="bg-green-500 text-white p-2 mt-2 mr-2 rounded-md" onclick="addPoints('${player.name}')">+5</button>
+                <button style="touch-action: manipulation;" class="bg-green-500 text-white p-2 mt-2 rounded-md" onclick="addPoints('${player.name}')">+5</button>
+                <button style="touch-action: manipulation;" class="bg-green-500 text-white p-2 mt-2 mr-2 rounded-md" onclick="add10Points('${player.name}')">+10</button>
             `;
     return listItem
 }
@@ -162,6 +163,20 @@ function addPoints(playerName) {
     const scoreElement = document.getElementById(`score_${playerName}`);
     const currentScore = parseInt(scoreElement.textContent, 10);
     const newScore = currentScore + 5;
+    scoreElement.textContent = newScore;
+
+    // Update the player object's score
+    const player = getPlayerByName(playerName);
+    if (player) {
+        player.score = newScore;
+    }
+}
+
+// Function to add 10 points to a player's score
+function add10Points(playerName) {
+    const scoreElement = document.getElementById(`score_${playerName}`);
+    const currentScore = parseInt(scoreElement.textContent, 10);
+    const newScore = currentScore + 10;
     scoreElement.textContent = newScore;
 
     // Update the player object's score
