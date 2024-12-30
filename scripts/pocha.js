@@ -141,8 +141,8 @@ function displayRoundScores() {
 
     listItem.textContent = `${roundNumber}: ${JSON.stringify(roundScores[roundScores.length - 1], null, 2).replace(/"([^"]+)":/g, '$1:') }`;
 
-    // Append the list item to the round scores list
-    roundScoresList.appendChild(listItem);
+    // Insert at the beggining of the round scores list
+    roundScoresList.insertBefore(listItem, roundScoresList.firstChild);
 }
 
 // Function to reset player scores to 0
