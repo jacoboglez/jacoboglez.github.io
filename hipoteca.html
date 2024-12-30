@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora de Hipotecas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button.eliminar {
+            background-color: #dc3545;
+        }
+
+        button.eliminar:hover {
+            background-color: #c82333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .resumen,
+        .pagos-anticipados,
+        .comparacion>div {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .pago-anticipado-item {
+            background-color: #e9ecef;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ahorro {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border-radius: 4px;
+            color: #155724;
+        }
+
+        .comparacion {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .destacado {
+            background-color: #fff3cd;
+        }
+
+        #recalcularCheckbox {
+            margin-right: 5px;
+            /* Ajusta el margen si es necesario */
+        }
+
+        label[for="recalcularCheckbox"] {
+            display: inline;
+            /* Asegura que el texto esté en la misma línea */
+            margin-left: 0;
+            /* Elimina cualquier margen a la izquierda */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Calculadora de Hipoteca</h1>
+
+    <div class="input-group">
+        <label for="capital">Capital inicial (€):</label>
+        <input type="number" id="capital" value="100000">
+    </div>
+
+    <div class="input-group">
+        <label for="interes">Tasa de interés anual (%):</label>
+        <input type="number" id="interes" value="5" step="0.1">
+    </div>
+
+    <div class="input-group">
+        <label for="anos">Años:</label>
+        <input type="number" id="anos" value="5">
+    </div>
+
+    <button onclick="calcularConPagosAnticipados()">Calcular hipoteca</button>
+
+    <div class="pagos-anticipados">
+        <h3>Pagos Anticipados</h3>
+        <div id="lista-pagos"></div>
+        <div class="input-group">
+            <label for="mesPago">Mes del pago:</label>
+            <input type="number" id="mesPago" value="12" min="1">
+        </div>
+        <div class="input-group">
+            <label for="cantidadPago">Cantidad (€):</label>
+            <input type="number" id="cantidadPago" value="10000">
+        </div>
+        <div class="input-group">
+            <label for="comisionPago">Comisión (€):</label>
+            <input type="number" id="comisionPago" value="0" min="0" step="0.01">
+        </div>
+        <button onclick="agregarPagoAnticipado()">Agregar pago anticipado</button>
+        <button onclick="calcularConPagosAnticipados()">Recalcular</button>
+        <label id="recalcularCheckboxLabel">
+            <input type="checkbox" id="recalcularCheckbox" onclick="toggleRecalcularCuota(this)">
+            Recalcular cuota tras los pagos anticipados
+        </label>
+    </div>
+
+
+    <div class="comparacion" id="comparacion"></div>
+
+    <div id="ahorro" class="ahorro"></div>
+
+    <div id="tabla-container">
+        <h3>Tabla de amortización</h3>
+        <table id="tabla-amortizacion">
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Cuota</th>
+                    <th>Intereses</th>
+                    <th>Capital amortizado</th>
+                    <th>Capital pendiente</th>
+                    <th>Evento</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let datosOriginales = null;
+        let pagosAnticipados = [];
+        let recalcularCuota = false;
+
+        // Function to toggle the value of recalcularCuota
+        function toggleRecalcularCuota(checkbox) {
+            recalcularCuota = checkbox.checked; // Update based on checkbox state
+            // console.log("recalcularCuota:", recalcularCuota); // Log the current value for demonstration
+        }
+
+        function calcularCuotaMensual(capital, interesMensual, meses) {
+            return capital * (interesMensual * Math.pow(1 + interesMensual, meses)) /
+                (Math.pow(1 + interesMensual, meses) - 1);
+        }
+
+        function agregarPagoAnticipado() {
+            const mes = parseInt(document.getElementById('mesPago').value);
+            const cantidad = parseFloat(document.getElementById('cantidadPago').value);
+            const comision = parseFloat(document.getElementById('comisionPago').value);
+
+            pagosAnticipados.push({
+                mes: mes,
+                cantidad: cantidad,
+                comision: comision // Ahora es un valor fijo en euros
+            });
+
+            actualizarListaPagos();
+        }
+
+        function actualizarListaPagos() {
+            const lista = document.getElementById('lista-pagos');
+            lista.innerHTML = '';
+
+            pagosAnticipados.sort((a, b) => a.mes - b.mes);
+
+            pagosAnticipados.forEach((pago, index) => {
+                const div = document.createElement('div');
+                div.className = 'pago-anticipado-item';
+                div.innerHTML = `
+                        Mes ${pago.mes}: ${pago.cantidad.toFixed(2)}€ 
+                        (Comisión: ${pago.comision.toFixed(2)}€) 
+                        <button class="eliminar" onclick="eliminarPago(${index})">Eliminar</button>
+                    `;
+                lista.appendChild(div);
+            });
+        }
+
+        function eliminarPago(index) {
+            pagosAnticipados.splice(index, 1);
+            actualizarListaPagos();
+        }
+
+        function calcularHipoteca() {
+            const capital = parseFloat(document.getElementById('capital').value);
+            const interesAnual = parseFloat(document.getElementById('interes').value);
+            const anos = parseFloat(document.getElementById('anos').value);
+
+            const meses = anos * 12;
+            const interesMensual = interesAnual / 100 / 12;
+
+            const cuota = calcularCuotaMensual(capital, interesMensual, meses);
+
+            let totalIntereses = 0;
+            let totalAmortizado = 0;
+            let capitalPendiente = capital;
+
+            for (let mes = 1; mes <= meses; mes++) {
+                const intereses = capitalPendiente * interesMensual;
+                const capitalCuota = cuota - intereses;
+                capitalPendiente -= capitalCuota;
+
+                totalIntereses += intereses;
+                totalAmortizado += capitalCuota;
+            }
+
+            datosOriginales = {
+                cuotaMensual: cuota,
+                totalIntereses: totalIntereses,
+                totalPagado: totalAmortizado + totalIntereses,
+                meses: meses
+            };
+
+            mostrarComparacion(datosOriginales, null);
+        }
+
+        function calcularConPagosAnticipados() {
+            const capital = parseFloat(document.getElementById('capital').value);
+            const interesAnual = parseFloat(document.getElementById('interes').value);
+            const anos = parseFloat(document.getElementById('anos').value);
+
+            const mesesTotales = anos * 12;
+            const interesMensual = interesAnual / 100 / 12;
+
+            let cuota = calcularCuotaMensual(capital, interesMensual, mesesTotales);
+
+            let html = '';
+            let totalIntereses = 0;
+            let totalAmortizado = 0;
+            let totalComisiones = 0;
+            let capitalPendiente = capital;
+            let pagosOrdenados = [...pagosAnticipados].sort((a, b) => a.mes - b.mes);
+            let ultimoMes = mesesTotales;
+
+            for (let mes = 1; mes <= mesesTotales; mes++) {
+                const intereses = capitalPendiente * interesMensual;
+                const capitalCuota = cuota - intereses;
+                let evento = '';
+
+                // Buscar pagos anticipados en este mes
+                const pagosDelMes = pagosOrdenados.filter(p => p.mes === mes);
+                let pagoTotalMes = 0;
+                let comisionesTotalesMes = 0;
+
+                pagosDelMes.forEach(pago => {
+                    pagoTotalMes += pago.cantidad;
+                    comisionesTotalesMes += pago.comision;
+                    totalComisiones += pago.comision;
+                });
+
+                if (pagoTotalMes > 0) {
+                    capitalPendiente -= pagoTotalMes;
+                    evento = `Pago anticipado: ${pagoTotalMes.toFixed(2)}€ (Comisión: ${comisionesTotalesMes.toFixed(2)}€)`;
+                    // Recalcular cuota para el resto del préstamo
+                    if (recalcularCuota) {
+                        cuota = calcularCuotaMensual(capitalPendiente, interesMensual, mesesTotales - mes);
+                    }
+                }
+
+                capitalPendiente -= capitalCuota;
+
+                totalIntereses += intereses;
+                totalAmortizado += capitalCuota;
+
+                const esFilaPagoAnticipado = pagoTotalMes > 0;
+                html += `
+                    <tr class="${esFilaPagoAnticipado ? 'destacado' : ''}">
+                        <td>${mes}</td>
+                        <td>${cuota.toFixed(2)}€</td>
+                        <td>${intereses.toFixed(2)}€</td>
+                        <td>${capitalCuota.toFixed(2)}€</td>
+                        <td>${Math.max(0, capitalPendiente).toFixed(2)}€</td>
+                        <td>${evento}</td>
+                    </tr>
+                `;
+
+                if (capitalPendiente <= 0) {
+                    capitalPendiente = 0;
+                    ultimoMes = mes;
+                    if (mes < mesesTotales) {
+                        evento = 'Préstamo finalizado';
+                        mesesAhorrados = mesesTotales - mes;
+                    }
+                    break;
+                }
+            }
+
+            document.getElementById('tabla-body').innerHTML = html;
+
+            const datosConPagos = {
+                cuotaMensual: cuota,
+                totalIntereses: totalIntereses,
+                totalPagado: totalAmortizado + totalIntereses + totalComisiones +
+                    pagosAnticipados.reduce((sum, p) => sum + p.cantidad, 0),
+                meses: ultimoMes,
+                totalComisiones: totalComisiones
+            };
+
+            mostrarComparacion(datosOriginales, datosConPagos);
+            mostrarAhorro(datosOriginales, datosConPagos);
+        }
+
+        function mostrarComparacion(datosOriginales, datosConPagos) {
+            if (!datosOriginales) return;
+
+            let html = `
+                <div>
+                    <h3>Sin pagos anticipados</h3>
+                    <p>Cuota mensual inicial: ${datosOriginales.cuotaMensual.toFixed(2)}€</p>
+                    <p>Total intereses: ${datosOriginales.totalIntereses.toFixed(2)}€</p>
+                    <p>Total a pagar: ${datosOriginales.totalPagado.toFixed(2)}€</p>
+                    <p>Duración: ${datosOriginales.meses} meses</p>
+                </div>
+            `;
+
+            if (datosConPagos) {
+                html += `
+                    <div>
+                        <h3>Con pagos anticipados</h3>
+                        <p>Cuota mensual final: ${datosConPagos.cuotaMensual.toFixed(2)}€</p>
+                        <p>Total intereses: ${datosConPagos.totalIntereses.toFixed(2)}€</p>
+                        <p>Total comisiones: ${datosConPagos.totalComisiones.toFixed(2)}€</p>
+                        <p>Total a pagar: ${datosConPagos.totalPagado.toFixed(2)}€</p>
+                        <p>Nueva duración: ${datosConPagos.meses} meses</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('comparacion').innerHTML = html;
+        }
+
+        function mostrarAhorro(datosOriginales, datosConPagos) {
+            const ahorroIntereses = datosOriginales.totalIntereses - datosConPagos.totalIntereses;
+            const ahorroMeses = datosOriginales.meses - datosConPagos.meses;
+            const ahorroTotal = datosOriginales.totalPagado - datosConPagos.totalPagado;
+
+            document.getElementById('ahorro').innerHTML = `
+                <h3>Resumen del ahorro</h3>
+                <p>Ahorro en intereses: ${ahorroIntereses.toFixed(2)}€</p>
+                <p>Coste en comisiones: ${datosConPagos.totalComisiones.toFixed(2)}€</p>
+                <p>Reducción en la duración del préstamo: ${ahorroMeses} meses</p>
+                <p>Ahorro total (incluyendo comisiones): ${ahorroTotal.toFixed(2)}€</p>
+            `;
+        }
+
+        // Calcular al cargar la página
+        calcularHipoteca();
+    </script>
+</body>
+
+</html>
