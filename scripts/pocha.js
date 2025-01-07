@@ -5,6 +5,68 @@ const roundScoresList = document.getElementById('roundScores');
 var roundNumber = 0;
 const playerList = document.getElementById('playerList');
 
+let timerValue = 15;
+let countdownInterval;
+
+// Function to start the countdown
+function startCountdown() {
+    const timerElement = document.getElementById('timer');
+    const widgetElement = document.getElementById('widget');
+
+    // Clear any existing interval
+    clearInterval(countdownInterval);
+
+    // Set the initial timer value and background color
+    timerElement.textContent = timerValue;
+    updateWidgetBackground(timerValue, widgetElement);
+
+    // Start the countdown
+    countdownInterval = setInterval(() => {
+        timerValue--;
+        timerElement.textContent = timerValue;
+
+        // Update the background color
+        updateWidgetBackground(timerValue, widgetElement);
+
+        // Stop the countdown at 0
+        if (timerValue <= 0) {
+            clearInterval(countdownInterval);
+            timerValue = 0; // Ensure timer stays at 0
+        }
+    }, 1000);
+}
+
+// Function to reset the timer
+function resetTimer() {
+    timerValue = 15; // Reset the timer value to 15
+    startCountdown(); // Restart the countdown
+}
+
+// Function to update the widget's background color based on time left
+function updateWidgetBackground(timeLeft, widgetElement) {
+    // Remove only the background color classes, keep layout classes intact
+    widgetElement.classList.remove('bg-green-500', 'bg-yellow-500', 'bg-red-500');
+
+    if (timeLeft <= 0) {
+        widgetElement.classList.add('bg-red-500');
+    } else if (timeLeft <= 5) {
+        widgetElement.classList.add('bg-yellow-500');
+    } else {
+        widgetElement.classList.add('bg-green-500');
+    }
+}
+
+
+// Attach the reset button functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const resetButton = document.getElementById('resetTimer');
+    resetButton.addEventListener('click', resetTimer);
+
+    // Start the countdown when the page loads
+    startCountdown();
+});
+
+
 document.addEventListener('DOMContentLoaded', function () {
     // Load players from cookies
     const savedPlayers = getCookie('players');

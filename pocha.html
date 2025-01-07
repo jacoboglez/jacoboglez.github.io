@@ -9,20 +9,35 @@
 </head>
 
 <body class="bg-gray-100 p-8">
+    <div id="widget" class="max-w-md mx-auto bg-white p-6 rounded-md shadow-md text-white">
+        <div class="flex justify-between items-center px-4">
+            <span id="timer" class="text-lg font-semibold">15</span>
+            <button id="resetTimer" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full">
+                Reset
+            </button>
+        </div>
+    </div>
+
+
+
+
     <div class="max-w-md mx-auto bg-white p-6 rounded-md shadow-md">
         <h1 class="text-2xl font-semibold mb-4">Pocha Tracker</h1>
         <div class="flex mb-4">
             <input id="playerName" type="text" class="w-full rounded-l-md px-2 py-1 focus:outline-none"
                 placeholder="Nombre del jugador">
-            <button id="addPlayer" class="bg-blue-500 text-white px-4 rounded-r-md hover:bg-blue-600">Añadir jugador</button>
+            <button id="addPlayer" class="bg-blue-500 text-white px-4 rounded-r-md hover:bg-blue-600">Añadir
+                jugador</button>
         </div>
         <ul id="playerList"></ul>
-        <button id="finishRound" class="bg-green-500 text-white px-4 py-2 mt-4 w-full hover:bg-green-600 rounded-md">Acabar mano</button>
+        <button id="finishRound"
+            class="bg-green-500 text-white px-4 py-2 mt-4 w-full hover:bg-green-600 rounded-md">Acabar mano</button>
         <ul id="roundScores" class="mt-4"></ul>
-        <button id="resetAllButton" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-full hover:bg-red-600">Borrar todo</button>
+        <button id="resetAllButton" class="bg-red-500 text-white px-4 py-2 mt-4 rounded-full hover:bg-red-600">Borrar
+            todo</button>
     </div>
 
-    <script src="scripts/pocha.js?v=2.2.1"></script>
+    <script src="scripts/pocha.js?v=2.3.1"></script>
 </body>
 
 </html>
