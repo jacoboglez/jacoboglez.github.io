@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symbols</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen p-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- <h1 class="text-4xl font-bold text-center mb-12 text-gray-800 tracking-tight">Copy Symbols</h1> -->
+
+        <div id="content"></div>
+
+        <div id="toast"
+            class="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-xl transform translate-y-full opacity-0 transition-all duration-300 shadow-lg">
+            Copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const sections = [
+            {
+                title: 'Greek Uppercase',
+                layout: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4',
+                symbols: [
+                    'Α', 'Β', 'Γ', 'Δ', 'Ε', 'Ζ', 'Η', 'Θ', 'Ι', 'Κ', 'Λ', 'Μ',
+                    'Ν', 'Ξ', 'Ο', 'Π', 'Ρ', 'Σ', 'Τ', 'Υ', 'Φ', 'Χ', 'Ψ', 'Ω'
+                ]
+            },
+            {
+                title: 'Greek Lowercase',
+                layout: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4',
+                symbols: [
+                    'α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ',
+                    'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω'
+                ]
+            },
+            {
+                title: 'Common Symbols',
+                layout: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4',
+                symbols: [
+                    '°', '©', '®', '™', '±', '×', '÷', '≠',
+                    '≈', '≤', '≥', '∞', '√', '∫', '∂', '∑',
+                    '∏', 'µ', '∈', '∉', '∅', '∩', '∪'
+                ]
+            },
+            {
+                title: 'Arrows',
+                layout: 'grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4',
+                symbols: [
+                    '←', '→', '↑', '↓', '↔', '↕', '↖', '↗',
+                    '⇐', '⇒', '⇑', '⇓', '⇔', '⇕', '⇖', '⇗',
+                    '⟵', '⟶', '⟷', '⤴', '⤵', '↻', '↺', '⟲'
+                ]
+            }
+        ];
+
+        function createButton(symbol) {
+            return `
+                <button onclick="copyToClipboard('${symbol}')" 
+                    class="aspect-square w-12 sm:w-14 md:w-16 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xl font-medium rounded-xl transition-all duration-200 hover:shadow-md flex items-center justify-center">
+                    ${symbol}
+                </button>
+            `;
+        }
+
+        function createSection(section) {
+            const titleHtml = section.title ?
+                `<h2 class="text-2xl font-semibold mb-6 text-gray-700">${section.title}</h2>` : '';
+
+            if (section.subsections) {
+                const subsectionsHtml = section.subsections.map(subsection => `
+                    <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+                        <div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
+                            ${subsection.symbols.map(createButton).join('')}
+                        </div>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="${section.layout}">
+                        ${subsectionsHtml}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 mt-8">
+                        ${titleHtml}
+                        <div class="${section.layout}">
+                            ${section.symbols.map(createButton).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast();
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+
+            setTimeout(() => {
+                toast.style.transform = 'translateY(100%)';
+                toast.style.opacity = '0';
+            }, 2000);
+        }
+
+        // Generate the content
+        document.getElementById('content').innerHTML = sections.map(createSection).join('');
+    </script>
+</body>
+
+</html>
