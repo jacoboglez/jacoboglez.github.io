@@ -82,116 +82,130 @@
    </main>
    
    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-         // Path to your CSV file - update this to the actual path
-         const csvFilePath = 'imgs/publications.csv';
+      // publications-loader.js
+         document.addEventListener('DOMContentLoaded', function () {
+            // Path to your CSV file - update this to the actual path
+            const csvFilePath = 'imgs/publications.csv';
 
-         // Fetch and parse the CSV file
-         fetch(csvFilePath)
-            .then(response => response.text())
-            .then(csvData => {
-               // Parse CSV using PapaParse
-               Papa.parse(csvData, {
-                  header: true,
-                  skipEmptyLines: true,
-                  complete: function (results) {
-                     renderPublications(results.data);
-                  },
-                  error: function (error) {
-                     console.error('Error parsing CSV:', error);
-                     document.getElementById('publications-container').innerHTML =
-                        `<div class="container px-5 py-24 mx-auto">
-                                       <p class="text-red-500 text-xl">Error loading publications (parsing).</p>
-                                   </div>`;
-                  }
-               });
-            })
-            .catch(error => {
-               console.error('Error fetching CSV:', error);
-               document.getElementById('publications-container').innerHTML =
-                  `<div class="container px-5 py-24 mx-auto">
-                               <p class="text-red-500 text-xl">Error loading publications (fetching).</p>
-                           </div>`;
-            });
+            // Container element where publications will be loaded
+            const containerElement = document.getElementById('publications-container');
 
-         // Function to render publications
-         function renderPublications(publications) {
-            // Group publications by year
-            const publicationsByYear = groupByYear(publications);
-
-            // Sort years in descending order
-            const years = Object.keys(publicationsByYear).sort((a, b) => b - a);
-
-            let html = '';
-
-            // Generate HTML for each year
-            years.forEach(year => {
-               html += `
-                       <!-- ${year} -->
-                       <section class="text-gray-700 body-font">
-                           <div class="container px-5 py-24 mx-auto flex flex-wrap">
-                               <h2 class="sm:text-3xl text-2xl text-gray-900 font-medium title-font mb-2 md:w-1/3">${year}</h2>
-                               <div class="md:w-2/3 md:pl-6">
-                                   ${generatePublicationsHTML(publicationsByYear[year])}
-                               </div>
-                           </div>
-                       </section>`;
-            });
-
-            // Update the DOM
-            document.getElementById('publications-container').innerHTML = html;
-         }
-
-         // Function to group publications by year
-         function groupByYear(publications) {
-            const groups = {};
-
-            publications.forEach(pub => {
-               const year = pub.Year;
-               if (!groups[year]) {
-                  groups[year] = [];
-               }
-               groups[year].push(pub);
-            });
-
-            return groups;
-         }
-
-         // Function to generate HTML for publications in a year
-         function generatePublicationsHTML(publications) {
-            let html = '';
-
-            publications.forEach(pub => {
-               html += `
-                       <!-- ${pub.Title} -->
-                       <div class="md:flex-grow mb-3">
-                           <div class="text-xl font-semibold block mb-0">
-                               ${pub.Title}
-                           </div>
-                           <!-- Links -->
-                           ${generateLinks(pub)}
-                       </div>`;
-            });
-
-            return html;
-         }
-
-         // Function to generate links for a publication
-         function generateLinks(publication) {
-            let html = '';
-
-            // DOI link (usually to the web page)
-            if (publication.DOI) {
-               html += `
-                       <a href="https://doi.org/${publication.DOI}" target="_blank"
-                           class="mr-2 bg-transparent hover:bg-yellow-500 text-yellow-500 font-semibold hover:text-white py-0 px-1 border border-yellow-500 hover:border-transparent rounded">
-                           DOI
-                       </a>`;
+            // Add loading indicator
+            if (containerElement) {
+               containerElement.innerHTML = `
+            <div class="container mx-auto py-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-500"></div>
+                <p class="mt-2 text-gray-600">Loading publications...</p>
+            </div>`;
             }
 
-            return html;
-         }
-      });
+            // Fetch and parse the CSV file
+            fetch(csvFilePath)
+               .then(response => response.text())
+               .then(csvData => {
+                  // Parse CSV using PapaParse
+                  Papa.parse(csvData, {
+                     header: true,
+                     skipEmptyLines: true,
+                     complete: function (results) {
+                        renderPublications(results.data);
+                     },
+                     error: function (error) {
+                        console.error('Error parsing CSV:', error);
+                        showError('Error parsing publications data.');
+                     }
+                  });
+               })
+               .catch(error => {
+                  console.error('Error fetching CSV:', error);
+                  showError('Error loading publications file.');
+               });
+
+            // Function to show error message
+            function showError(message) {
+               if (containerElement) {
+                  containerElement.innerHTML = `
+                <div class="container px-5 py-24 mx-auto">
+                    <p class="text-red-500 text-xl">${message}</p>
+                </div>`;
+               }
+            }
+
+            // Function to render publications
+            function renderPublications(publications) {
+               // Group publications by year
+               const publicationsByYear = groupByYear(publications);
+
+               // Sort years in descending order
+               const years = Object.keys(publicationsByYear).sort((a, b) => b - a);
+
+               let html = '';
+
+               // Generate HTML for each year
+               years.forEach(year => {
+                  html += `
+            <!-- ${year} -->
+            <section class="text-gray-700 body-font">
+                <div class="container px-5 py-24 mx-auto flex flex-wrap">
+                    <h2 class="sm:text-3xl text-2xl text-gray-900 font-medium title-font mb-2 md:w-1/3">${year}</h2>
+                    <div class="md:w-2/3 md:pl-6">
+                        ${generatePublicationsHTML(publicationsByYear[year])}
+                    </div>
+                </div>
+            </section>`;
+               });
+
+               // Update the DOM
+               if (containerElement) {
+                  containerElement.innerHTML = html;
+               }
+            }
+
+            // Function to group publications by year
+            function groupByYear(publications) {
+               const groups = {};
+
+               publications.forEach(pub => {
+                  const year = pub.Year;
+                  if (!groups[year]) {
+                     groups[year] = [];
+                  }
+                  groups[year].push(pub);
+               });
+
+               return groups;
+            }
+
+            // Function to generate HTML for publications in a year
+            function generatePublicationsHTML(publications) {
+               let html = '';
+
+               publications.forEach(pub => {
+                  // Get the URL for the title link (DOI or Link)
+                  let titleUrl = '';
+                  if (pub.DOI) {
+                     titleUrl = `https://doi.org/${pub.DOI}`;
+                  }
+
+                  html += `
+            <!-- ${pub.Title} -->
+            <div class="md:flex-grow mb-3">
+                <div class="text-xl font-semibold block mb-0">
+                    ${titleUrl ?
+                        `<a href="${titleUrl}" target="_blank" class="hover:text-yellow-500">${pub.Title}</a>` :
+                        pub.Title}
+                </div>
+                <!-- Journal name (Source title) -->
+                ${pub["Source title"] ?
+                        `<div class="text-gray-600 text-sm italic mb-1">${pub["Source title"]}${pub.Volume ? `, ${pub.Volume}` : ''}${pub.Issue ? `(${pub.Issue})` : ''}${pub["Page start"] && pub["Page end"] ? `, pp. ${pub["Page start"]}-${pub["Page end"]}` : ''}</div>` :
+                        ''}
+            </div>`;
+               });
+
+               return html;
+            }
+
+         });
    </script>
 
 
