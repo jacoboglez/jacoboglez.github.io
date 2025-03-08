@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tix Clock</title>
+  <title>Enhanced TIX Clock</title>
   <style>
     * {
       margin: 0;
@@ -20,6 +20,7 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
+      padding: 20px;
     }
 
     #container {
@@ -41,6 +42,21 @@
     @media (max-width: 768px) {
       #my-canvas {
         max-height: 80vh;
+      }
+
+      body {
+        padding: 15px;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      body {
+        padding: 15px 20px 30px 20px;
+        /* Extra padding at the bottom */
+      }
+
+      #my-canvas {
+        max-height: 75vh;
       }
     }
   </style>
@@ -80,7 +96,7 @@
 
       // Set initial canvas dimensions based on container
       var containerWidth = container.clientWidth;
-      var containerHeight = container.clientHeight * 0.8; // Use 80% of container height
+      var containerHeight = container.clientHeight * 0.85; // Use 85% of container height
 
       // Calculate the optimal canvas size
       var aspectRatio = 2.56; // Ideal aspect ratio for the clock (width/height)
