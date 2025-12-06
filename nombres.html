@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Práctica de números en francés</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Tailwind fijado a una versión concreta -->
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-100 flex items-center justify-center px-4">
+
+  <div class="max-w-md w-full">
+    <h1 class="text-2xl sm:text-3xl font-bold text-center mb-6 text-slate-800">
+      Práctica de números en francés
+    </h1>
+
+    <!-- Tarjeta principal -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 flex flex-col gap-6">
+      <!-- Número en dígitos -->
+      <div class="text-center">
+        <p class="text-sm uppercase tracking-wide text-slate-500 mb-2">Número</p>
+        <p id="digitNumber" class="text-6xl sm:text-7xl font-extrabold text-slate-900 break-words">
+          0
+        </p>
+      </div>
+
+      <!-- Solución en francés -->
+      <div class="border border-dashed border-slate-300 rounded-xl p-4 bg-slate-50 text-center min-h-[3.5rem] flex items-center justify-center">
+        <p id="frenchText" class="text-lg sm:text-xl text-slate-800 font-medium hidden"></p>
+        <p id="placeholderText" class="text-sm text-slate-400 italic">
+          Pulsa el botón para ver cómo se escribe en francés.
+        </p>
+      </div>
+
+      <!-- Único botón: mostrar solución / siguiente número -->
+      <div class="flex">
+        <button
+          id="mainActionBtn"
+          class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white hover:bg-slate-900 active:scale-[0.98] transition"
+        >
+          Mostrar solución
+        </button>
+      </div>
+
+      <!-- Contador opcional -->
+      <p id="counterText" class="text-xs text-center text-slate-500">
+        Tarjetas vistas: <span id="cardCount">0</span>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // Conversión número → francés (0–9 999 999)
+    // =========================================================
+
+    /**
+     * Convierte un número entero entre 0 y 9 999 999 en su representación en francés.
+     * Cubre unidades, decenas, centenas, miles, decenas de miles y millones.
+     */
+    function numberToFrench(n) {
+      if (!Number.isInteger(n) || n < 0 || n > 9_999_999) {
+        throw new Error("numberToFrench solo admite enteros entre 0 y 9 999 999");
+      }
+
+      if (n < 100) {
+        return numberToFrenchUnder100(n);
+      }
+
+      if (n < 1000) {
+        return numberToFrenchUnder1000(n);
+      }
+
+      if (n < 1_000_000) {
+        // Miles (1 000 – 999 999)
+        const thousands = Math.floor(n / 1000);
+        const rest = n % 1000;
+
+        let thousandsPart;
+        if (thousands === 1) {
+          // 1 000 → "mille" (sin "un")
+          thousandsPart = "mille";
+        } else {
+          thousandsPart = numberToFrenchUnder1000(thousands) + " mille";
+        }
+
+        if (rest === 0) {
+          return thousandsPart;
+        }
+        return thousandsPart + " " + numberToFrenchUnder1000(rest);
+      }
+
+      // Millones (1 000 000 – 9 999 999)
+      const millions = Math.floor(n / 1_000_000); // 1–9
+      const rest = n % 1_000_000;
+
+      let millionsPart;
+      if (millions === 1) {
+        millionsPart = "un million";
+      } else {
+        millionsPart = numberToFrenchUnder1000(millions) + " millions";
+      }
+
+      if (rest === 0) {
+        return millionsPart;
+      }
+
+      // El resto es menor que 1 000 000, volvemos a usar la misma función
+      return millionsPart + " " + numberToFrench(rest);
+    }
+
+    /**
+     * Números 0–99 en francés.
+     */
+    function numberToFrenchUnder100(n) {
+      if (n < 0 || n > 99) {
+        throw new Error("numberToFrenchUnder100 solo admite 0–99");
+      }
+
+      const units = {
+        0: "zéro",
+        1: "un",
+        2: "deux",
+        3: "trois",
+        4: "quatre",
+        5: "cinq",
+        6: "six",
+        7: "sept",
+        8: "huit",
+        9: "neuf",
+        10: "dix",
+        11: "onze",
+        12: "douze",
+        13: "treize",
+        14: "quatorze",
+        15: "quinze",
+        16: "seize"
+      };
+
+      const tensWords = {
+        20: "vingt",
+        30: "trente",
+        40: "quarante",
+        50: "cinquante",
+        60: "soixante"
+      };
+
+      if (n <= 16) {
+        return units[n];
+      }
+
+      if (n >= 17 && n <= 19) {
+        // 17 → dix-sept, 18 → dix-huit, 19 → dix-neuf
+        return "dix-" + units[n - 10];
+      }
+
+      if (n < 70) {
+        // 20–69 (regulares)
+        const ten = Math.floor(n / 10) * 10; // 20, 30, 40, 50, 60
+        const unit = n % 10;
+        const tenWord = tensWords[ten];
+
+        if (unit === 0) {
+          return tenWord;
+        }
+
+        if (unit === 1) {
+          // 21, 31, 41, 51, 61 → "vingt et un", etc.
+          return tenWord + " et un";
+        }
+
+        return tenWord + "-" + units[unit];
+      }
+
+      // 70–79: se construyen sobre "soixante" + (10–19)
+      if (n >= 70 && n < 80) {
+        const rest = n - 60; // 10–19
+
+        if (n === 71) {
+          // forma habitual: "soixante et onze"
+          return "soixante et onze";
+        }
+
+        if (rest === 10) {
+          return "soixante-dix";
+        }
+
+        if (rest >= 11 && rest <= 16) {
+          return "soixante-" + units[rest];
+        }
+
+        // 77, 78, 79 → "soixante-dix-sept", etc.
+        return "soixante-" + numberToFrenchUnder100(rest);
+      }
+
+      // 80–99
+      if (n === 80) {
+        // plural en "quatre-vingts" solo para 80 exacto
+        return "quatre-vingts";
+      }
+
+      const rest = n - 80; // 1–19
+
+      if (rest >= 1 && rest <= 16) {
+        // 81–96 (hasta "quatre-vingt-seize")
+        return "quatre-vingt-" + units[rest];
+      }
+
+      // 97, 98, 99 → "quatre-vingt-dix-sept", etc.
+      return "quatre-vingt-" + numberToFrenchUnder100(rest);
+    }
+
+    /**
+     * Números 0–999 en francés.
+     */
+    function numberToFrenchUnder1000(n) {
+      if (n < 0 || n > 999) {
+        throw new Error("numberToFrenchUnder1000 solo admite 0–999");
+      }
+
+      if (n < 100) {
+        return numberToFrenchUnder100(n);
+      }
+
+      const hundreds = Math.floor(n / 100);
+      const rest = n % 100;
+
+      let hundredsWord;
+      if (hundreds === 1) {
+        // 100–199
+        hundredsWord = "cent";
+      } else {
+        // 200, 300, ... "deux cent", "trois cent"
+        hundredsWord = numberToFrenchUnder100(hundreds) + " cent";
+      }
+
+      // Plural de "cent" cuando es múltiplo exacto > 100: "deux cents"
+      if (rest === 0 && hundreds > 1) {
+        hundredsWord += "s";
+        return hundredsWord;
+      }
+
+      if (rest === 0) {
+        return hundredsWord;
+      }
+
+      return hundredsWord + " " + numberToFrenchUnder100(rest);
+    }
+
+    // =========================================================
+    // Lógica de distribución ponderada
+    // =========================================================
+
+    /**
+     * Genera un número aleatorio con distribución ponderada:
+     *  - 50%   → 0–20
+     *  - 25%   → 21–60
+     *  - 15%   → 61–100
+     *  - 6%    → 1 000–9 999        (miles)
+     *  - 3%    → 10 000–99 999      (decenas de miles)
+     *  - 1%    → 1 000 000–9 000 000 (millones)
+     */
+    function getWeightedRandomNumber() {
+      const r = Math.random();
+
+      if (r < 0.5) {
+        // 50% → 0–20
+        return getRandomIntInclusive(0, 20);
+      } else if (r < 0.75) {
+        // 25% → 21–60
+        return getRandomIntInclusive(21, 60);
+      } else if (r < 0.9) {
+        // 15% → 61–100
+        return getRandomIntInclusive(61, 100);
+      } else if (r < 0.96) {
+        // 6% → miles
+        return getRandomIntInclusive(1000, 9999);
+      } else if (r < 0.99) {
+        // 3% → decenas de miles
+        return getRandomIntInclusive(10_000, 99_999);
+      } else {
+        // 1% → millones
+        return getRandomIntInclusive(1_000_000, 9_000_000);
+      }
+    }
+
+    /**
+     * Entero aleatorio [min, max], ambos incluidos.
+     */
+    function getRandomIntInclusive(min, max) {
+      const minCeil = Math.ceil(min);
+      const maxFloor = Math.floor(max);
+      return Math.floor(Math.random() * (maxFloor - minCeil + 1)) + minCeil;
+    }
+
+    // =========================================================
+    // Lógica de la interfaz
+    // =========================================================
+
+    const digitNumberEl = document.getElementById("digitNumber");
+    const frenchTextEl = document.getElementById("frenchText");
+    const placeholderTextEl = document.getElementById("placeholderText");
+    const mainActionBtn = document.getElementById("mainActionBtn");
+    const cardCountEl = document.getElementById("cardCount");
+
+    let currentNumber = 0;
+    let isSolutionVisible = false;
+    let cardCount = 0;
+
+    /**
+     * Muestra una nueva tarjeta:
+     *  - Genera número ponderado
+     *  - Calcula su forma en francés
+     *  - Oculta la solución
+     *  - Actualiza contador
+     */
+    function showNewCard() {
+      currentNumber = getWeightedRandomNumber();
+      digitNumberEl.textContent = currentNumber.toLocaleString("fr-FR"); // separador de miles
+
+      const french = numberToFrench(currentNumber);
+      frenchTextEl.textContent = french;
+
+      // Ocultar solución y ajustar botón
+      hideSolution();
+
+      // Actualizar contador
+      cardCount++;
+      cardCountEl.textContent = cardCount;
+    }
+
+    /**
+     * Muestra la solución en francés.
+     */
+    function showSolution() {
+      isSolutionVisible = true;
+      frenchTextEl.classList.remove("hidden");
+      frenchTextEl.classList.add("fade-in");
+      placeholderTextEl.classList.add("hidden");
+      mainActionBtn.textContent = "Siguiente número";
+
+      // Eliminar la clase de animación tras el efecto
+      setTimeout(() => {
+        frenchTextEl.classList.remove("fade-in");
+      }, 300);
+    }
+
+    /**
+     * Oculta la solución en francés.
+     */
+    function hideSolution() {
+      isSolutionVisible = false;
+      frenchTextEl.classList.add("hidden");
+      placeholderTextEl.classList.remove("hidden");
+      mainActionBtn.textContent = "Mostrar solución";
+    }
+
+    // Un solo botón:
+    //  - Si la solución está oculta → mostrar solución
+    //  - Si la solución está visible → pasar al siguiente número
+    mainActionBtn.addEventListener("click", () => {
+      if (!isSolutionVisible) {
+        showSolution();
+      } else {
+        showNewCard();
+      }
+    });
+
+    // Primera tarjeta al cargar la página
+    window.addEventListener("DOMContentLoaded", () => {
+      showNewCard();
+    });
+  </script>
+</body>
+</html>
