@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tute cabrón — anotador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700;9..144,900&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt:#152A20;
+    --felt-2:#1D3729;
+    --felt-line:rgba(242,233,216,.14);
+    --naipe:#F2E9D8;
+    --naipe-sombra:rgba(0,0,0,.45);
+    --tinta:#1A1410;
+    --tinta-suave:#6B6055;
+    --oros:#C0891F;
+    --copas:#AF3427;
+    --espadas:#2C5A88;
+    --bastos:#55772F;
+    --display:"Fraunces",Georgia,serif;
+    --ui:"Archivo","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, var(--felt-2) 0%, var(--felt) 60%),
+      var(--felt);
+    color:var(--naipe);
+    font-family:var(--ui);
+    min-height:100dvh;
+    -webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+    background-image:repeating-linear-gradient(45deg,transparent 0 6px,rgba(0,0,0,.05) 6px 7px);
+  }
+  .envoltorio{position:relative;max-width:640px;margin:0 auto;padding:26px 18px 140px}
+
+  /* ---------- cabecera ---------- */
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:22px}
+  .marca{font-family:var(--display);font-weight:900;font-size:30px;line-height:.95;letter-spacing:-.02em;font-variation-settings:"SOFT" 40,"WONK" 1}
+  .marca em{display:block;font-style:normal;font-family:var(--ui);font-weight:600;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(242,233,216,.5);margin-top:7px}
+  /* ---------- alta de jugadores ---------- */
+  .panel{background:rgba(0,0,0,.18);border:1px solid var(--felt-line);border-radius:4px;padding:20px 18px}
+  .panel h2{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 4px}
+  .panel p{margin:0 0 18px;font-size:13px;line-height:1.5;color:rgba(242,233,216,.62)}
+  .fila-nombre{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .pip-mini{width:26px;height:26px;flex:0 0 26px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:#fff}
+  input[type=text]{
+    flex:1;min-width:0;background:var(--naipe);border:none;border-radius:3px;
+    padding:13px 12px;font-family:var(--ui);font-size:16px;color:var(--tinta);
+  }
+  input[type=text]::placeholder{color:#A79C8C}
+  input[type=text]:focus-visible,button:focus-visible{outline:2px solid #E8C158;outline-offset:2px}
+  .quitar{background:none;border:none;color:rgba(242,233,216,.45);font-size:22px;line-height:1;padding:6px 4px;cursor:pointer;font-family:var(--ui)}
+  .quitar:hover{color:var(--copas)}
+  .btn{
+    font-family:var(--ui);font-weight:600;font-size:14px;letter-spacing:.02em;
+    border-radius:3px;border:1px solid transparent;padding:14px 18px;cursor:pointer;
+  }
+  .btn-solido{background:var(--naipe);color:var(--tinta);width:100%}
+  .btn-solido:disabled{opacity:.35;cursor:not-allowed}
+  .btn-linea{background:transparent;color:var(--naipe);border-color:var(--felt-line);width:100%;margin-bottom:14px}
+  .btn-linea:hover{border-color:rgba(242,233,216,.4)}
+
+  /* ---------- naipes de jugador ---------- */
+  .mesa{display:grid;gap:14px}
+  .naipe{
+    position:relative;width:100%;text-align:left;cursor:pointer;
+    background:var(--naipe);border:none;border-radius:5px;
+    padding:15px 16px 17px;
+    box-shadow:0 6px 0 -2px rgba(0,0,0,.25),0 14px 26px -12px var(--naipe-sombra);
+    transition:transform .12s ease,box-shadow .12s ease;
+    font-family:var(--ui);
+  }
+  .naipe::after{content:"";position:absolute;inset:5px;border:1px solid rgba(26,20,16,.16);border-radius:3px;pointer-events:none}
+  .naipe:active{transform:translateY(3px);box-shadow:0 3px 0 -2px rgba(0,0,0,.25),0 8px 16px -10px var(--naipe-sombra)}
+  .naipe.eliminado{background:#DCD1BC;box-shadow:none;cursor:default}
+  .naipe.eliminado:active{transform:none}
+  .cabecera-naipe{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .pip{
+    width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-size:15px;
+  }
+  .nombre{font-family:var(--display);font-weight:700;font-size:21px;color:var(--tinta);line-height:1;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variation-settings:"SOFT" 30}
+  .estado{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--tinta-suave);white-space:nowrap}
+
+  .letras{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+  .letra{
+    position:relative;aspect-ratio:1/1.22;display:grid;place-items:center;border-radius:3px;
+    font-family:var(--display);font-weight:900;font-size:clamp(19px,6.4vw,26px);line-height:1;
+    color:rgba(26,20,16,.15);background:rgba(26,20,16,.045);
+    border:1px dashed rgba(26,20,16,.18);
+  }
+  .letra.hecha{
+    color:#fff;border-style:solid;border-color:transparent;
+  }
+  .letra.nueva,.acento.nuevo{animation:sello .34s cubic-bezier(.2,1.5,.4,1) both}
+  @keyframes sello{
+    0%{transform:scale(1.7) rotate(-9deg);opacity:0}
+    60%{opacity:1}
+    100%{transform:scale(1) rotate(var(--giro,-2deg));opacity:1}
+  }
+  .letra.hecha{transform:rotate(var(--giro,-2deg))}
+  .acento{
+    position:absolute;top:-13px;left:50%;transform:translateX(-50%) rotate(6deg);
+    font-family:var(--display);font-weight:900;font-size:26px;line-height:1;
+    color:rgba(26,20,16,.14);pointer-events:none;
+  }
+  .acento.puesto{color:var(--tono,var(--tinta))}
+  .tira{
+    margin:16px -11px -12px;border-radius:0 0 3px 3px;
+    background:var(--copas);color:#F7EFE2;
+    padding:7px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+  }
+  .tira span:last-child{letter-spacing:.12em;opacity:.8}
+
+  /* ---------- pie fijo ---------- */
+  .pie{
+    position:fixed;left:0;right:0;bottom:0;z-index:5;
+    background:linear-gradient(to top,var(--felt) 55%,rgba(21,42,32,0));
+    padding:26px 18px calc(16px + env(safe-area-inset-bottom));
+  }
+  .pie-int{max-width:640px;margin:0 auto;display:flex;gap:10px}
+  .btn-pie{
+    flex:1;background:rgba(242,233,216,.08);color:var(--naipe);border:1px solid var(--felt-line);
+    border-radius:3px;padding:13px 10px;font-family:var(--ui);font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .btn-pie:disabled{opacity:.3;cursor:not-allowed}
+  .btn-pie:hover:not(:disabled){background:rgba(242,233,216,.14)}
+  .pista{max-width:640px;margin:0 auto 12px;text-align:center;font-size:12px;color:rgba(242,233,216,.55)}
+
+  /* ---------- confirmación ---------- */
+  .velo{
+    position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:24px;
+    background:rgba(10,20,15,.88);
+  }
+  .dialogo{
+    background:var(--naipe);color:var(--tinta);border-radius:5px;padding:26px 22px;
+    max-width:340px;width:100%;text-align:center;box-shadow:0 24px 60px -20px #000;
+  }
+  .dialogo h3{font-family:var(--display);font-weight:700;font-size:20px;margin:0 0 8px}
+  .dialogo p{color:var(--tinta-suave);font-size:13px;line-height:1.5;margin:0 0 20px}
+  .dialogo .btn-solido{background:var(--copas);color:#F7EFE2;margin-bottom:9px}
+  .dialogo .btn-linea{color:var(--tinta);border-color:rgba(26,20,16,.25);margin-bottom:0}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+  }
+</style>
+</head>
+<body>
+<div class="envoltorio">
+  <header>
+    <div class="marca">Tute cabrón<em>Pierde en medio</em></div>
+  </header>
+  <main id="vista"></main>
+</div>
+
+<div class="pie" id="pie" hidden>
+  <div class="pista" id="pista">Toca el naipe de quien pierde la mano.</div>
+  <div class="pie-int">
+    <button class="btn-pie" id="btnDeshacer">Deshacer letra</button>
+    <button class="btn-pie" id="btnJugadores">Jugadores</button>
+    <button class="btn-pie" id="btnNueva">Partida nueva</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var PALABRA = ["C","A","B","R","O","N"];
+  var TOTAL = 7; // seis letras y, la última, el acento de la O
+  var PALOS = [
+    {nombre:"oros",    color:"#C0891F", pip:"◆"},
+    {nombre:"copas",   color:"#AF3427", pip:"♥"},
+    {nombre:"espadas", color:"#2C5A88", pip:"✦"},
+    {nombre:"bastos",  color:"#55772F", pip:"❦"}
+  ];
+  var CLAVE = "tutecabron:partida";
+
+  var estado = nueva();
+  var recienMarcado = null; // id del jugador que acaba de recibir letra
+
+  function nueva(){
+    return {fase:"alta", borrador:[{nombre:""},{nombre:""},{nombre:""}], jugadores:[], historial:[], siguienteId:1};
+  }
+
+  /* ----- guardado ----- */
+  function guardar(){
+    try{ window.storage && window.storage.set(CLAVE, JSON.stringify(estado)); }catch(e){}
+  }
+  function cargar(){
+    if(!window.storage) return pintar();
+    window.storage.get(CLAVE).then(function(r){
+      if(r && r.value){
+        var g = JSON.parse(r.value);
+        if(g && g.fase) estado = migrar(g);
+      }
+      pintar();
+    }).catch(function(){ pintar(); });
+  }
+  function migrar(g){
+    g.jugadores = g.jugadores || [];
+    g.historial = g.historial || [];
+    g.siguienteId = g.siguienteId || 1;
+    var faltanIds = false;
+    g.jugadores.forEach(function(j,i){
+      if(typeof j.marcas !== "number") j.marcas = j.letras || 0;
+      delete j.letras;
+      if(typeof j.palo !== "number") j.palo = i;
+      if(typeof j.id !== "number"){ j.id = g.siguienteId++; faltanIds = true; }
+    });
+    if(faltanIds){ // el historial antiguo guardaba posiciones
+      g.historial = g.historial.map(function(pos){
+        return g.jugadores[pos] ? g.jugadores[pos].id : -1;
+      }).filter(function(id){ return id !== -1; });
+    }
+    if(!g.borrador) g.borrador = g.jugadores.map(function(j){ return {nombre:j.nombre, id:j.id}; });
+    return g;
+  }
+
+  /* ----- utilidades ----- */
+  var vista = document.getElementById("vista");
+  var pie = document.getElementById("pie");
+
+  function palo(i){ return PALOS[i % PALOS.length]; }
+  function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+  function completo(j){ return j.marcas > 0 && j.marcas % TOTAL === 0; }
+  function vueltas(j){ return Math.floor(j.marcas / TOTAL); }
+  function enCurso(j){ return completo(j) ? TOTAL : j.marcas % TOTAL; }
+  function porId(id){
+    for(var i=0;i<estado.jugadores.length;i++){ if(estado.jugadores[i].id === id) return estado.jugadores[i]; }
+    return null;
+  }
+
+  /* ----- pantalla de jugadores ----- */
+  function pintarAlta(){
+    pie.hidden = true;
+    var enMarcha = estado.jugadores.length >= 2;
+
+    var filas = estado.borrador.map(function(b,i){
+      var j = b.id != null ? porId(b.id) : null;
+      var p = palo(j ? j.palo : i);
+      return '<div class="fila-nombre">'+
+        '<span class="pip-mini" style="background:'+p.color+'">'+p.pip+'</span>'+
+        '<input type="text" data-i="'+i+'" value="'+esc(b.nombre)+'" maxlength="16" placeholder="Jugador '+(i+1)+'" autocomplete="off">'+
+        (estado.borrador.length>2 ? '<button class="quitar" data-quitar="'+i+'" aria-label="Quitar jugador">×</button>' : '')+
+      '</div>';
+    }).join("");
+
+    vista.innerHTML =
+      '<section class="panel">'+
+        '<h2>'+(enMarcha ? "Jugadores" : "¿Quién juega?")+'</h2>'+
+        '<p>'+(enMarcha
+            ? "Quien entre ahora empieza con las mismas letras que el más cargado de la mesa. Las letras del resto se mantienen."
+            : "De 2 a 6. Cada mano perdida vale una letra de CABRON, y la séptima pone el acento sobre la O.")+'</p>'+
+        filas+
+        (estado.borrador.length<6 ? '<button class="btn btn-linea" id="mas" style="margin-top:8px">Añadir jugador</button>' : '<div style="height:8px"></div>')+
+        '<button class="btn btn-solido" id="empezar">'+(enMarcha ? "Volver a la mesa" : "Empezar partida")+'</button>'+
+      '</section>';
+
+    Array.prototype.forEach.call(vista.querySelectorAll("input[type=text]"), function(inp){
+      inp.addEventListener("input", function(){ estado.borrador[+inp.dataset.i].nombre = inp.value; revisar(); });
+    });
+    Array.prototype.forEach.call(vista.querySelectorAll("[data-quitar]"), function(b){
+      b.addEventListener("click", function(){ estado.borrador.splice(+b.dataset.quitar,1); pintar(); });
+    });
+    var mas = document.getElementById("mas");
+    if(mas) mas.addEventListener("click", function(){
+      estado.borrador.push({nombre:""}); pintar();
+      var campos = vista.querySelectorAll("input[type=text]"); campos[campos.length-1].focus();
+    });
+    document.getElementById("empezar").addEventListener("click", confirmar);
+    revisar();
+
+    function validos(){ return estado.borrador.filter(function(b){ return b.nombre.trim(); }); }
+    function revisar(){ document.getElementById("empezar").disabled = validos().length < 2; }
+
+    function confirmar(){
+      var lista = validos();
+      if(lista.length < 2) return;
+
+      var conservados = lista.map(function(b){ return b.id != null ? porId(b.id) : null; });
+      var tope = 0;
+      conservados.forEach(function(j){ if(j && j.marcas > tope) tope = j.marcas; });
+      var usados = conservados.filter(Boolean).map(function(j){ return j.palo; });
+
+      estado.jugadores = lista.map(function(b,i){
+        var j = conservados[i];
+        if(j){ j.nombre = b.nombre.trim(); return j; }
+        var libre = 0;
+        while(usados.indexOf(libre) !== -1) libre++;
+        usados.push(libre);
+        var nuevoJ = {id: estado.siguienteId++, nombre: b.nombre.trim(), marcas: tope, palo: libre};
+        b.id = nuevoJ.id;
+        return nuevoJ;
+      });
+
+      var vivos = estado.jugadores.map(function(j){ return j.id; });
+      estado.historial = estado.historial.filter(function(id){ return vivos.indexOf(id) !== -1; });
+      estado.borrador = estado.jugadores.map(function(j){ return {nombre:j.nombre, id:j.id}; });
+      estado.fase = "juego";
+      recienMarcado = null;
+      pintar(); guardar();
+    }
+  }
+
+  /* ----- mesa ----- */
+  function pintarMesa(){
+    pie.hidden = false;
+
+    var naipes = estado.jugadores.map(function(j){
+      var p = palo(j.palo);
+      var hechas = enCurso(j);
+      var lleno = completo(j);
+      var vez = vueltas(j);
+      var perdido = vez >= 1;
+      var animar = recienMarcado === j.id;
+
+      var letras = PALABRA.map(function(L,k){
+        var hecha = k < hechas;
+        var giro = ((k*37)%7) - 3;
+        var acento = "";
+        if(L === "O"){
+          acento = '<span class="acento'+(lleno?" puesto":"")+(lleno&&animar?" nuevo":"")+'" style="--tono:'+p.color+'">´</span>';
+        }
+        var esNueva = animar && hecha && k === hechas-1 && !lleno;
+        return '<span class="letra'+(hecha?" hecha":"")+(esNueva?" nueva":"")+'" style="'+
+          (hecha? "background:"+p.color+";--giro:"+giro+"deg;" : "")+'">'+acento+L+'</span>';
+      }).join("");
+
+      var quedan = TOTAL - hechas;
+      var estadoTxt = lleno
+        ? (vez > 1 ? "Cabrón ×"+vez : "Cabrón")
+        : (quedan === 1 ? "Solo el acento" : quedan+" para cabrón");
+
+      return '<button class="naipe" data-j="'+j.id+'">'+
+        '<div class="cabecera-naipe">'+
+          '<span class="pip" style="background:'+p.color+'">'+p.pip+'</span>'+
+          '<span class="nombre">'+esc(j.nombre)+'</span>'+
+          '<span class="estado">'+estadoTxt+'</span>'+
+        '</div>'+
+        '<div class="letras">'+letras+'</div>'+
+        (perdido ? '<div class="tira"><span>Cabrón'+(vez>1?" ×"+vez:"")+'</span></div>' : '')+
+      '</button>';
+    }).join("");
+
+    vista.innerHTML = '<div class="mesa">'+naipes+'</div>';
+    recienMarcado = null;
+
+    Array.prototype.forEach.call(vista.querySelectorAll(".naipe"), function(b){
+      b.addEventListener("click", function(){ darLetra(+b.dataset.j); });
+    });
+    document.getElementById("btnDeshacer").disabled = estado.historial.length === 0;
+  }
+
+  function darLetra(id){
+    var j = porId(id);
+    if(!j) return;
+    j.marcas++;
+    estado.historial.push(id);
+    recienMarcado = id;
+    pintar(); guardar();
+  }
+
+  function deshacer(){
+    var id = estado.historial.pop();
+    if(id === undefined) return;
+    var j = porId(id);
+    if(j && j.marcas > 0) j.marcas--;
+    recienMarcado = null;
+    pintar(); guardar();
+  }
+
+  /* ----- pie ----- */
+  document.getElementById("btnDeshacer").addEventListener("click", deshacer);
+  document.getElementById("btnJugadores").addEventListener("click", function(){
+    estado.borrador = estado.jugadores.map(function(j){ return {nombre:j.nombre, id:j.id}; });
+    estado.fase = "alta";
+    pintar(); guardar();
+  });
+  document.getElementById("btnNueva").addEventListener("click", function(){
+    preguntar("Empezar de cero", "Se borran las letras y los nombres de todos.", "Sí, borrar todo", function(){
+      estado = nueva();
+      recienMarcado = null;
+      pintar(); guardar();
+    });
+  });
+
+  function preguntar(titulo, texto, etiquetaSi, alConfirmar){
+    var velo = document.createElement("div");
+    velo.className = "velo";
+    velo.innerHTML =
+      '<div class="dialogo" role="dialog" aria-modal="true">'+
+        '<h3>'+titulo+'</h3><p>'+texto+'</p>'+
+        '<button class="btn btn-solido" data-si>'+etiquetaSi+'</button>'+
+        '<button class="btn btn-linea" data-no>Cancelar</button>'+
+      '</div>';
+    document.body.appendChild(velo);
+    velo.querySelector("[data-si]").focus();
+    velo.querySelector("[data-si]").addEventListener("click", function(){ velo.remove(); alConfirmar(); });
+    velo.querySelector("[data-no]").addEventListener("click", function(){ velo.remove(); });
+    velo.addEventListener("click", function(e){ if(e.target === velo) velo.remove(); });
+    document.addEventListener("keydown", function cerrar(e){
+      if(e.key === "Escape"){ velo.remove(); document.removeEventListener("keydown", cerrar); }
+    });
+  }
+
+  function pintar(){
+    if(estado.fase === "juego" && estado.jugadores.length >= 2) pintarMesa();
+    else pintarAlta();
+  }
+
+  cargar();
+})();
+</script>
+</body>
+</html>
