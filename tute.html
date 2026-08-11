@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f5d45" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101c16" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tute</title>
+<style>
+/* ── 1. Variables ─────────────────────────────────────────────────── */
+:root{
+  --tapete:#2f5d45;        /* el paño de la mesa */
+  --tapete-alto:#386b51;
+  --papel:#efe9dc;         /* la hoja */
+  --papel-alto:#e6dece;
+  --tinta:#23201b;
+  --tinta-tenue:#8d8574;
+  --linea:#d8cfba;
+  --a:#2b4a8b;             /* bolígrafo azul */
+  --b:#a83232;             /* bolígrafo rojo */
+  --a-suave:#2b4a8b22;
+  --b-suave:#a8323222;
+  --sombra:0 2px 0 rgba(0,0,0,.18), 0 10px 24px rgba(0,0,0,.22);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --tapete:#101c16;
+    --tapete-alto:#16261d;
+    --papel:#1c1b19;
+    --papel-alto:#232220;
+    --tinta:#e8e1d2;
+    --tinta-tenue:#7b7466;
+    --linea:#33312c;
+    --a:#7fa8e8;
+    --b:#e4776b;
+    --a-suave:#7fa8e826;
+    --b-suave:#e4776b26;
+    --sombra:0 1px 0 rgba(255,255,255,.04), 0 10px 24px rgba(0,0,0,.5);
+  }
+}
+
+/* ── 2. Base ──────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--tapete);
+  color:var(--tinta);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+  display:grid;
+  grid-template-rows:auto auto 1fr auto;
+  height:100dvh;
+  max-width:520px;
+  margin-inline:auto;
+  overflow:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
+.serif{font-family:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+.eyebrow{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:600;color:var(--tinta-tenue);
+}
+
+/* ── 3. Barra superior ────────────────────────────────────────────── */
+#barra{
+  padding:calc(env(safe-area-inset-top) + 8px) 14px 10px;
+  background:var(--tapete);
+  color:#f2ece0;
+}
+@media (prefers-color-scheme: dark){ #barra{color:var(--tinta)} }
+
+#fila-util{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#fila-util button{
+  min-height:56px;display:flex;align-items:center;gap:8px;
+  padding:0 12px;border-radius:12px;font-size:14px;font-weight:600;
+  color:inherit;opacity:.72;
+}
+#fila-util button:active{opacity:1;background:rgba(255,255,255,.09)}
+#fila-util button[disabled]{opacity:.28;pointer-events:none}
+#desfacer{font-variant-numeric:tabular-nums}
+#desfacer .glifo{font-size:22px;line-height:1}
+
+#marcador{display:flex;align-items:flex-start;gap:12px;padding:2px 2px 0}
+#marcador .lado{flex:1;min-width:0}
+#marcador .lado.dcha{text-align:right}
+.nome{
+  display:block;width:100%;text-align:inherit;
+  font-size:17px;font-weight:700;letter-spacing:.01em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  padding:2px 0;
+}
+.puntos-set{display:flex;gap:6px;margin-top:7px}
+.lado.dcha .puntos-set{justify-content:flex-end}
+.punto{width:11px;height:11px;border-radius:50%;border:2px solid currentColor;opacity:.4}
+.punto.gañado{opacity:1;background:currentColor}
+#lado0 .punto{color:var(--a)} #lado1 .punto{color:var(--b)}
+@media (prefers-color-scheme: light){
+  #lado0 .punto{color:#9fc0ff} #lado1 .punto{color:#ffb0a6}
+}
+
+/* ── 4. Sets cerrados ─────────────────────────────────────────────── */
+#cerrados{padding:0 12px;overflow-y:auto;max-height:34vh}
+#cerrados:not(:empty){padding-bottom:8px}
+.set-vello{
+  background:var(--papel);border-radius:10px;
+  margin-top:8px;box-shadow:var(--sombra);overflow:hidden;
+}
+.set-vello .cabeza{
+  width:100%;text-align:left;
+  min-height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;
+}
+.set-vello .num{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--tinta-tenue);font-weight:600}
+.set-vello .quen{flex:1;font-weight:600;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.set-vello .tanteo{font-size:17px;font-variant-numeric:tabular-nums}
+.set-vello .chevron{color:var(--tinta-tenue);font-size:12px;transition:transform .18s ease}
+.set-vello .cabeza[aria-expanded="true"] .chevron{transform:rotate(180deg)}
+.set-vello .corpo{padding:8px 10px 10px;border-top:1px solid var(--linea)}
+.set-vello .corpo .escaleira{width:68%;margin-inline:auto}
+
+/* ── 5. Hoja del set en curso ─────────────────────────────────────── */
+#folla{padding:8px 12px 4px;overflow-y:auto}
+.hoja{
+  background:var(--papel);border-radius:var(--r);box-shadow:var(--sombra);
+  padding:14px 12px 12px;
+}
+.hoja-cabeza{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tanteo-vivo{font-size:34px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.tanteo-vivo .t0{color:var(--a)} .tanteo-vivo .t1{color:var(--b)}
+.tanteo-vivo .guion{color:var(--tinta-tenue);padding:0 4px}
+
+/* cabecera de columnas, alineada con las columnas del svg (130/40/130) */
+.cabezallo{display:grid;grid-template-columns:130fr 40fr 130fr;margin:12px 0 4px}
+.cabezallo span{
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+  text-align:center;padding:0 6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cabezallo .n0{color:var(--a)} .cabezallo .n1{color:var(--b)}
+
+.escaleira{display:block;width:100%;height:auto}
+.escaleira .espina{fill:var(--papel-alto)}
+.escaleira .raia{stroke:var(--linea);stroke-width:1}
+.escaleira .cifra{
+  fill:var(--tinta-tenue);font-family:ui-serif,"Iowan Old Style",Palatino,Georgia,serif;
+  font-size:15px;text-anchor:middle;font-variant-numeric:tabular-nums;
+}
+.escaleira .c0{color:var(--a)} .escaleira .c1{color:var(--b)}
+.trazo{fill:none;stroke:currentColor;stroke-width:3.1;stroke-linecap:round}
+.union{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.nova{animation:entra .3s ease-out}
+@keyframes entra{from{opacity:0}to{opacity:1}}
+
+/* ── 6. Botonera ──────────────────────────────────────────────────── */
+#pe{padding:8px 12px calc(env(safe-area-inset-bottom) + 12px)}
+#tira{
+  display:none;background:var(--papel);border-radius:var(--r);box-shadow:var(--sombra);
+  padding:12px 14px;margin-bottom:10px;align-items:center;gap:12px;
+}
+#tira.visible{display:flex}
+#tira .texto{flex:1;min-width:0}
+#tira .titulo{font-size:16px;font-weight:700;line-height:1.25}
+#tira .sub{font-size:13px;color:var(--tinta-tenue);margin-top:2px}
+#tira button{
+  min-height:56px;padding:0 18px;border-radius:12px;font-weight:700;font-size:15px;
+  background:var(--tinta);color:var(--papel);white-space:nowrap;
+}
+#tira button:active{transform:translateY(1px)}
+
+#botons{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.columna{display:grid;gap:8px}
+.gañou{
+  min-height:76px;border-radius:var(--r);color:#fff;font-size:19px;font-weight:700;
+  box-shadow:var(--sombra);line-height:1.15;padding:0 10px;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  overflow:hidden;
+}
+.gañou span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.doble{
+  min-height:56px;border-radius:12px;font-size:15px;font-weight:600;
+  border:1.5px solid currentColor;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.doble .par{letter-spacing:-.16em;font-size:17px}
+#g0{background:var(--a)} #g1{background:var(--b)}
+#d0{color:var(--a);background:var(--a-suave)} #d1{color:var(--b);background:var(--b-suave)}
+@media (prefers-color-scheme: dark){ .gañou{color:#12110f} }
+.gañou:active,.doble:active{transform:translateY(1px)}
+#botons.bloqueada{opacity:.34;pointer-events:none}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important}
+}
+</style>
+</head>
+<body>
+
+<header id="barra">
+  <div id="fila-util">
+    <button id="nova" type="button">Partida nueva</button>
+    <button id="desfacer" type="button" aria-label="Deshacer la última anotación">
+      <span class="glifo" aria-hidden="true">↶</span> Deshacer
+    </button>
+  </div>
+  <div id="marcador">
+    <div class="lado" id="lado0">
+      <button class="nome" id="nome0" type="button"></button>
+      <div class="puntos-set" id="puntos0"></div>
+    </div>
+    <div class="lado dcha" id="lado1">
+      <button class="nome" id="nome1" type="button"></button>
+      <div class="puntos-set" id="puntos1"></div>
+    </div>
+  </div>
+</header>
+
+<section id="cerrados"></section>
+
+<main id="folla"></main>
+
+<footer id="pe">
+  <div id="tira" role="status">
+    <div class="texto">
+      <div class="titulo" id="tira-titulo"></div>
+      <div class="sub" id="tira-sub"></div>
+    </div>
+    <button id="tira-boton" type="button"></button>
+  </div>
+  <div id="botons">
+    <div class="columna">
+      <button class="gañou" id="g0" type="button"><span></span></button>
+      <button class="doble" id="d0" type="button"><span class="par" aria-hidden="true">✕✕</span> Doble</button>
+    </div>
+    <div class="columna">
+      <button class="gañou" id="g1" type="button"><span></span></button>
+      <button class="doble" id="d1" type="button"><span class="par" aria-hidden="true">✕✕</span> Doble</button>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ══ Estado ═══════════════════════════════════════════════════════════
+   Lo único que se guarda. Todo lo demás se deriva al pintar.          */
+
+const CLAVE = 'tute.partida.v1';
+const OBXECTIVO = 8;
+const SETS = 3;
+
+function baleira(){ return { bandos:['Nós','Eles'], sets:[{manos:[]}] }; }
+
+function cargar(){
+  try{
+    const cru = localStorage.getItem(CLAVE);
+    if(!cru) return baleira();
+    const p = JSON.parse(cru);
+    if(!Array.isArray(p.sets) || !p.sets.length || !Array.isArray(p.bandos)) return baleira();
+    return p;
+  }catch(e){ return baleira(); }
+}
+function gardar(){
+  try{ localStorage.setItem(CLAVE, JSON.stringify(partida)); }catch(e){}
+}
+
+let partida = cargar();
+let despregados = new Set();   // sets cerrados abiertos (no se persiste)
+let novaMan = -1;              // índice de la mano recién anotada, para la transición
+
+/* ── Derivadas ─────────────────────────────────────────────────────── */
+const tantos   = (set,b) => set.manos.reduce((a,m)=> a + (m.ganador===b ? m.tantos : 0), 0);
+const cerrado  = set => tantos(set,0) >= OBXECTIVO || tantos(set,1) >= OBXECTIVO;
+const gañador  = set => cerrado(set) ? (tantos(set,0) >= OBXECTIVO ? 0 : 1) : null;
+const setsGañados = b => partida.sets.filter(s => cerrado(s) && gañador(s) === b).length;
+const setActual = () => partida.sets[partida.sets.length - 1];
+const rematada  = () => partida.sets.length === SETS && cerrado(partida.sets[SETS-1]);
+const gañadorPartida = () => setsGañados(0) > setsGañados(1) ? 0 : 1;
+
+/* ══ Acciones ═════════════════════════════════════════════════════════ */
+
+function anotar(b, n){
+  const set = setActual();
+  if(cerrado(set)) return;
+  set.manos.push({ ganador:b, tantos:n });
+  novaMan = set.manos.length - 1;
+  gardar(); pintar();
+  if(navigator.vibrate) navigator.vibrate(20);
+}
+
+function seguinte(){
+  if(partida.sets.length >= SETS) return;
+  partida.sets.push({ manos:[] });
+  novaMan = -1;
+  gardar(); pintar();
+}
+
+function desfacer(){
+  const set = setActual();
+  if(set.manos.length) set.manos.pop();
+  if(!set.manos.length && partida.sets.length > 1) partida.sets.pop();
+  novaMan = -1;
+  despregados.clear();
+  gardar(); pintar();
+  if(navigator.vibrate) navigator.vibrate(12);
+}
+
+function hainada(){
+  return partida.sets.length === 1 && !partida.sets[0].manos.length;
+}
+
+function nova(){
+  if(!hainada() && !confirm('¿Empezar una partida nueva? Se borra la actual.')) return;
+  const nomes = partida.bandos.slice();
+  partida = baleira();
+  partida.bandos = nomes;
+  despregados.clear(); novaMan = -1;
+  gardar(); pintar();
+}
+
+function renomear(b){
+  const nome = prompt('Nombre del bando', partida.bandos[b]);
+  if(nome === null) return;
+  partida.bandos[b] = nome.trim().slice(0,14) || (b ? 'Eles' : 'Nós');
+  gardar(); pintar();
+}
+
+/* ══ Dibujo de la escalerilla ═════════════════════════════════════════
+   Una fila por tanto, numeradas de arriba abajo. El aspa cae en la fila
+   de su número, así que la última aspa marca el tanteo sin contar.     */
+
+const ANCHO = 300, PAD = 8, FILA = 34, R = 10.5;
+const COL   = [65, 235];   // eje de cada columna de aspas
+const BRAZO = [39, 261];   // eje del corchete, por fuera del par
+const ESPINA = { x:130, ancho:40 };
+
+// Pseudoaleatorio determinista: la misma mano tiembla siempre igual.
+function ruido(n){ const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+
+const yFila = i => PAD + i * FILA + FILA / 2;
+
+function aspa(cx, cy, semente){
+  const x = cx + (ruido(semente)     - .5) * 3.4;
+  const y = cy + (ruido(semente + 7) - .5) * 3.6;
+  const ang = (ruido(semente + 13) - .5) * 15;
+  const r = R * (.92 + ruido(semente + 23) * .16);
+  const d = `<path class="trazo" d="M${(x-r).toFixed(1)} ${(y-r).toFixed(1)}L${(x+r).toFixed(1)} ${(y+r).toFixed(1)}"/>`
+          + `<path class="trazo" d="M${(x-r).toFixed(1)} ${(y+r).toFixed(1)}L${(x+r).toFixed(1)} ${(y-r).toFixed(1)}"/>`;
+  return { marca:`<g transform="rotate(${ang.toFixed(2)} ${x.toFixed(1)} ${y.toFixed(1)})">${d}</g>`, x, y, r };
+}
+
+// El corchete vertical que abraza las dos aspas de una mano doble.
+function corchete(b, a1, a2, semente){
+  const fóra = b ? 1 : -1;
+  const bx = BRAZO[b] + fóra * ruido(semente + 31) * 2;
+  const x1 = a1.x + fóra * (a1.r + 3.5);
+  const x2 = a2.x + fóra * (a2.r + 3.5);
+  const d = `M${x1.toFixed(1)} ${a1.y.toFixed(1)}`
+          + `L${bx.toFixed(1)} ${(a1.y + 1).toFixed(1)}`
+          + `L${(bx + fóra).toFixed(1)} ${(a2.y - 1).toFixed(1)}`
+          + `L${x2.toFixed(1)} ${a2.y.toFixed(1)}`;
+  return `<path class="union" d="${d}"/>`;
+}
+
+function svgEscaleira(set, marcarNova){
+  // Ocho filas siempre; la novena solo asoma si un doble se pasa de ocho.
+  const filas = Math.max(OBXECTIVO, tantos(set,0), tantos(set,1));
+  const alto = PAD * 2 + filas * FILA;
+
+  let retícula = `<rect class="espina" x="${ESPINA.x}" y="0" width="${ESPINA.ancho}" height="${alto}"/>`;
+  let cifras = '';
+  for(let i = 0; i < filas; i++){
+    if(i) retícula += `<line class="raia" x1="8" y1="${PAD + i*FILA}" x2="${ANCHO-8}" y2="${PAD + i*FILA}"/>`;
+    cifras += `<text class="cifra" x="150" y="${(yFila(i) + 5.2).toFixed(1)}">${i+1}</text>`;
+  }
+
+  let columnas = '';
+  for(let b = 0; b < 2; b++){
+    let pezas = '', n = 0;
+    set.manos.forEach((m, i) => {
+      if(m.ganador !== b) return;
+      const nova = marcarNova && i === novaMan ? ' nova' : '';
+      const par = [];
+      for(let k = 0; k < m.tantos; k++){
+        const a = aspa(COL[b], yFila(n), i * 7 + k * 3);
+        pezas += `<g class="aspa${nova}">${a.marca}</g>`;
+        par.push(a); n++;
+      }
+      if(m.tantos === 2) pezas += `<g class="${nova.trim()}">${corchete(b, par[0], par[1], i)}</g>`;
+    });
+    columnas += `<g class="col c${b}">${pezas}</g>`;
+  }
+
+  return `<svg class="escaleira" viewBox="0 0 ${ANCHO} ${alto}" aria-hidden="true">`
+       + retícula + cifras + columnas + `</svg>`;
+}
+
+/* ══ Render ═══════════════════════════════════════════════════════════
+   pintar() reconstruye la pantalla entera desde el estado.            */
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function cabezallo(){
+  return `<div class="cabezallo">
+    <span class="n0">${esc(partida.bandos[0])}</span>
+    <span></span>
+    <span class="n1">${esc(partida.bandos[1])}</span>
+  </div>`;
+}
+
+function pintar(){
+  // Barra superior
+  partida.bandos.forEach((nome, b) => {
+    $('nome' + b).textContent = nome;
+    $('puntos' + b).innerHTML = Array.from({length:SETS}, (_, i) =>
+      `<span class="punto${i < setsGañados(b) ? ' gañado' : ''}"></span>`).join('');
+  });
+  $('desfacer').disabled = hainada();
+
+  // Sets cerrados (todos menos el que está sobre la mesa)
+  const vellos = partida.sets.slice(0, -1);
+  $('cerrados').innerHTML = vellos.map((set, i) => {
+    const g = gañador(set), aberto = despregados.has(i);
+    return `<div class="set-vello">
+      <button class="cabeza" type="button" data-set="${i}" aria-expanded="${aberto}">
+        <span class="num">Set ${i+1}</span>
+        <span class="quen">${esc(partida.bandos[g])}</span>
+        <span class="tanteo serif">${tantos(set,0)}–${tantos(set,1)}</span>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </button>
+      ${aberto ? `<div class="corpo">${svgEscaleira(set, false)}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Hoja del set en curso
+  const set = setActual(), n = partida.sets.length;
+  $('folla').innerHTML = `<div class="hoja">
+    <div class="hoja-cabeza">
+      <span class="eyebrow">Set ${n} de ${SETS}</span>
+      <span class="tanteo-vivo serif">
+        <span class="t0">${tantos(set,0)}</span><span class="guion">–</span><span class="t1">${tantos(set,1)}</span>
+      </span>
+    </div>
+    ${cabezallo()}
+    ${svgEscaleira(set, true)}
+  </div>`;
+
+  // Botonera + tira de confirmación
+  partida.bandos.forEach((nome, b) => { $('g'+b).firstElementChild.textContent = nome; });
+  const pechado = cerrado(set);
+  $('botons').classList.toggle('bloqueada', pechado);
+
+  const tira = $('tira');
+  tira.classList.toggle('visible', pechado);
+  if(pechado){
+    const g = gañador(set);
+    if(rematada()){
+      const gp = gañadorPartida();
+      $('tira-titulo').textContent = `Partida para ${partida.bandos[gp]}`;
+      $('tira-sub').textContent = `${setsGañados(gp)} sets a ${setsGañados(1-gp)}`;
+      $('tira-boton').textContent = 'Partida nueva';
+      $('tira-boton').dataset.accion = 'nova';
+    }else{
+      $('tira-titulo').textContent = `Set ${n} para ${partida.bandos[g]}`;
+      $('tira-sub').textContent = `${tantos(set,0)}–${tantos(set,1)}. Revisa antes de seguir.`;
+      $('tira-boton').textContent = `Ir al set ${n+1}`;
+      $('tira-boton').dataset.accion = 'seguinte';
+    }
+  }
+}
+
+/* ══ Eventos ══════════════════════════════════════════════════════════ */
+
+$('g0').onclick = () => anotar(0,1);
+$('g1').onclick = () => anotar(1,1);
+$('d0').onclick = () => anotar(0,2);
+$('d1').onclick = () => anotar(1,2);
+$('desfacer').onclick = desfacer;
+$('nova').onclick = nova;
+$('nome0').onclick = () => renomear(0);
+$('nome1').onclick = () => renomear(1);
+$('tira-boton').onclick = function(){ this.dataset.accion === 'nova' ? nova() : seguinte(); };
+
+$('cerrados').addEventListener('click', e => {
+  const b = e.target.closest('.cabeza'); if(!b) return;
+  const i = +b.dataset.set;
+  despregados.has(i) ? despregados.delete(i) : despregados.add(i);
+  pintar();
+});
+
+// Doble toque: bloquea el zoom que se cuela entre pulsación y pulsación.
+document.addEventListener('gesturestart', e => e.preventDefault());
+
+/* ── Pantalla encendida mientras hay partida ───────────────────────── */
+let bloqueo = null;
+async function manterAcesa(){
+  if(!('wakeLock' in navigator)) return;
+  try{ bloqueo = await navigator.wakeLock.request('screen'); }catch(e){}
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible') manterAcesa();
+});
+manterAcesa();
+
+/* ── Manifiesto mínimo, para añadirla a la pantalla de inicio ──────── */
+try{
+  const m = {name:'Tute', short_name:'Tute', display:'standalone', start_url:'.',
+             background_color:'#2f5d45', theme_color:'#2f5d45'};
+  const l = document.createElement('link');
+  l.rel = 'manifest';
+  l.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(m));
+  document.head.appendChild(l);
+}catch(e){}
+
+pintar();
+</script>
+</body>
+</html>
