@@ -21,6 +21,7 @@ import type { Generator } from '../core/types.ts';
 import { flowField } from './flowField.ts';
 import { randomWalk } from './randomWalk.ts';
 import { laserBounce } from './laserBounce.ts';
+import { curlFlow } from './curlFlow.ts';
 
 export interface GeneratorEntry {
   /** Type-erased to `Record<string, any>` so heterogeneous generators can share one list; call sites that generate/render go through the shell, which is itself generic over the concrete `P`. */
@@ -47,6 +48,11 @@ export const REGISTRY: readonly GeneratorEntry[] = [
     generator: laserBounce as Generator<Record<string, any>>,
     title: 'Laser Bounce',
     description: 'A ray fired from the center of a triangle bounces off its walls like a mirror, tracing one unbroken path.',
+  },
+  {
+    generator: curlFlow as Generator<Record<string, any>>,
+    title: 'Curl Flow',
+    description: 'Divergence-free noise streamlines, traced with RK4 from equispaced seeds on any combination of page edges — un-normalized velocity, no convergence artifacts.',
   },
 ];
 
