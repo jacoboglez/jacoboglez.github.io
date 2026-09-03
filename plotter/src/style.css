@@ -1,0 +1,318 @@
+:root {
+  color-scheme: light;
+  --bg: #e9e7e1;
+  --panel-bg: #ffffff;
+  --border: #d8d5cc;
+  --text: #222;
+  --muted: #767267;
+  --accent: #b3452c;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+#root {
+  height: 100%;
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#canvas-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+#preview-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+#canvas-wrap label {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+#panel {
+  overflow-y: auto;
+  /* Grid items default to min-height: auto, which lets a tall child grow
+     the item past the row's 100vh instead of scrolling inside it. Without
+     this, #panel silently ignores overflow-y and content gets clipped. */
+  min-height: 0;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--border);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 12px;
+}
+
+/* A flex item with its own `overflow` set gets an automatic minimum size
+   of 0 (not its content size), so #controls's `overflow: hidden` (below,
+   for the border-radius) was letting the flex layout crush it -- and clip
+   the Tweakpane pane inside it -- instead of the panel scrolling past it.
+   flex-shrink: 0 keeps every section at its natural height so #panel's own
+   scrollbar is what handles overflow, not per-section clipping. */
+#panel > * {
+  flex-shrink: 0;
+}
+
+/* Tweakpane keeps its own (dark) default theme here rather than a partial
+   light-theme override -- overriding only the base background color while
+   leaving Tweakpane's text-color tokens alone produced low-contrast,
+   hard-to-read monitor readouts. */
+#controls {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+#app-header a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 11px;
+}
+
+#app-header a:hover {
+  text-decoration: underline;
+}
+
+#app-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.controls-notice {
+  background: #fff4e5;
+  border: 1px solid #e8c27a;
+  color: #6b4c00;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+#hover-readout {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+#stats-line {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+#histogram {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 36px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 2px;
+}
+
+.histogram-bar {
+  flex: 1;
+  background: var(--accent);
+  opacity: 0.7;
+  min-height: 2px;
+}
+
+.section-title {
+  font-weight: 600;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.section-title .hint {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+#library-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+#library-actions button,
+#library-actions label {
+  font-size: 11px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+#library-grid,
+#seed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+#seed-grid {
+  grid-template-columns: repeat(var(--seed-grid-cols, 4), 1fr);
+}
+
+.library-cell,
+.seed-grid-cell {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fafaf8;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.library-cell img,
+.seed-grid-cell img {
+  width: 100%;
+  display: block;
+  background: #f4f3ef;
+}
+
+.library-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 6px;
+  font-size: 10px;
+}
+
+.library-meta button {
+  align-self: flex-start;
+  font-size: 10px;
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+}
+
+.library-date {
+  color: var(--muted);
+}
+
+.seed-grid-cell span {
+  display: block;
+  font-size: 10px;
+  text-align: center;
+  padding: 2px 0;
+  color: var(--muted);
+}
+
+/* --- Gallery / index page --- */
+
+#gallery {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 56px 24px;
+  min-height: 100%;
+  color: var(--text);
+}
+
+#gallery h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.gallery-intro {
+  color: var(--muted);
+  margin: 0 0 28px;
+}
+
+#gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.gallery-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.gallery-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.gallery-card-thumb {
+  aspect-ratio: 297 / 210;
+  background: #f4f3ef;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.gallery-card-title {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.gallery-card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}

@@ -1,0 +1,61 @@
+# ============================================================================
+# THIS FILE IS STAGED, NOT IN ITS FINAL PLACE.
+#
+# After you move this whole "Plotter" folder into your jacoboglez.github.io
+# repo (e.g. as a `plotter/` subfolder), move THIS file to:
+#
+#     .github/workflows/deploy-art.yml
+#
+# ...at the ROOT of the jacoboglez.github.io repo (not inside plotter/),
+# creating the .github/workflows/ folders if they don't exist yet. Then
+# delete this staged copy. Rename the header comment/filename however you
+# like -- only the path it ends up at (.github/workflows/*.yml) matters to
+# GitHub Actions.
+#
+# If you name the subfolder something other than "plotter/" when you move
+# it, update the two "plotter" references below (the `working-directory`
+# and the `paths:` trigger filter) to match.
+# ============================================================================
+name: Build and deploy Plotter to /art
+
+on:
+  push:
+    branches: [main]
+    paths: ['plotter/**']
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install and build
+        working-directory: plotter
+        run: |
+          npm ci
+          npm run build
+
+      - name: Sync build output into /art
+        run: |
+          rm -rf art
+          mkdir art
+          cp -r plotter/dist/* art/
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add art
+          if git diff --cached --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Deploy plotter to /art [skip ci]"
+            git push
+          fi
