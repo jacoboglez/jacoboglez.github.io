@@ -197,6 +197,20 @@ button:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
 @media (prefers-reduced-motion: reduce){
   *{animation:none !important;transition:none !important}
 }
+
+#aviso{
+  display:none;position:fixed;left:0;right:0;bottom:0;z-index:99;
+  background:#7d1f1f;color:#fff;padding:12px 14px;
+  font:13px/1.4 ui-monospace,monospace;
+}
+
+/* ── 7. Confeti ───────────────────────────────────────────────────── */
+#confeti{
+  position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:520px;height:100%;
+  pointer-events:none;z-index:9;display:none;
+}
+#confeti.tirando{display:block}
 </style>
 </head>
 <body>
@@ -244,6 +258,19 @@ button:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
   </div>
 </footer>
 
+<div id="aviso"></div>
+<canvas id="confeti" aria-hidden="true"></canvas>
+
+<script>
+// Si algo revienta, que se vea en pantalla en vez de dejarla en blanco.
+window.onerror = function(msg, url, liña){
+  const aviso = document.getElementById('aviso');
+  if(aviso){
+    aviso.textContent = 'Fallo en la línea ' + liña + ': ' + msg;
+    aviso.style.display = 'block';
+  }
+};
+</script>
 <script>
 /* ══ Estado ═══════════════════════════════════════════════════════════
    Lo único que se guarda. Todo lo demás se deriva al pintar.          */
@@ -289,6 +316,8 @@ function anotar(b, n){
   novaMan = set.manos.length - 1;
   gardar(); pintar();
   if(navigator.vibrate) navigator.vibrate(20);
+  // ¿esta mano cerró el set? Confeti del lado del que gana, más fuerte si es la partida.
+  if(cerrado(set)) tirarConfeti(gañador(set), rematada());
 }
 
 function seguinte(){
@@ -304,6 +333,7 @@ function desfacer(){
   if(!set.manos.length && partida.sets.length > 1) partida.sets.pop();
   novaMan = -1;
   despregados.clear();
+  varrerConfeti();
   gardar(); pintar();
   if(navigator.vibrate) navigator.vibrate(12);
 }
@@ -318,6 +348,7 @@ function nova(){
   partida = baleira();
   partida.bandos = nomes;
   despregados.clear(); novaMan = -1;
+  varrerConfeti();
   gardar(); pintar();
 }
 
@@ -473,6 +504,108 @@ function pintar(){
   }
 }
 
+/* ══ Confeti ══════════════════════════════════════════════════════════
+   Cañón desde la esquina inferior del bando que gana, disparando hacia
+   dentro y hacia arriba. Se apaga solo cuando cae la última partícula. */
+
+let lenzo = null, ctx = null;
+let anacos = [], animando = false;
+
+function quieto(){   // ¿el sistema pide no animar? Si no se sabe, animamos.
+  try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; }
+}
+
+function preparar(){  // se busca el lienzo la primera vez que hace falta, no al arrancar
+  if(ctx) return true;
+  try{
+    lenzo = $('confeti');
+    ctx = lenzo && lenzo.getContext ? lenzo.getContext('2d') : null;
+  }catch(e){ ctx = null; }
+  return !!ctx;
+}
+
+function cor(b){
+  let c = b ? '#a83232' : '#2b4a8b';
+  try{
+    const v = getComputedStyle(document.documentElement).getPropertyValue(b ? '--b' : '--a').trim();
+    if(v) c = v;
+  }catch(e){}
+  // tres tonos alrededor del color del bando, para que no sea un bloque plano
+  return [c, b ? '#e8b04b' : '#4fb0a0', b ? '#f2e2c4' : '#cfe0f5'];
+}
+
+function tirarConfeti(b, forte){
+  if(quieto() || !preparar()) return;
+
+  // Primero mostrarlo y luego medirlo: mientras está en display:none el ancho es 0.
+  lenzo.classList.add('tirando');
+  const d = window.devicePixelRatio || 1;
+  const an = lenzo.width  = lenzo.clientWidth  * d;
+  const al = lenzo.height = lenzo.clientHeight * d;
+  if(!an || !al){ lenzo.classList.remove('tirando'); return; }
+
+  const cores = cor(b);
+  const lado = b ? 1 : -1;               // hacia dónde apunta el cañón
+  const ox = b ? an - 12 * d : 12 * d;   // boca, en su esquina
+  const oy = al - 90 * d;
+
+  const n = forte ? 130 : 80;
+  for(let i = 0; i < n; i++){
+    const ang = -Math.PI/2 - lado * (0.15 + Math.random() * 0.62);  // arriba y hacia dentro
+    const v = (9 + Math.random() * 11) * d * (forte ? 1.12 : 1);
+    anacos.push({
+      x: ox + (Math.random() - .5) * 26 * d,
+      y: oy + (Math.random() - .5) * 26 * d,
+      vx: Math.cos(ang) * v,
+      vy: Math.sin(ang) * v,
+      xiro: Math.random() * Math.PI * 2,
+      vxiro: (Math.random() - .5) * .34,
+      ancho: (5 + Math.random() * 5) * d,
+      alto:  (8 + Math.random() * 6) * d,
+      cor: cores[(Math.random() * cores.length) | 0],
+      vida: 1,
+      fin: .0055 + Math.random() * .005
+    });
+  }
+
+  if(!animando){ animando = true; requestAnimationFrame(paso); }
+}
+
+function paso(){
+  const an = lenzo.width, al = lenzo.height, d = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, an, al);
+
+  anacos = anacos.filter(p => {
+    p.vy += .42 * d;          // gravedad
+    p.vx *= .992; p.vy *= .992;
+    p.x += p.vx; p.y += p.vy;
+    p.xiro += p.vxiro;
+    p.vida -= p.fin;
+    if(p.vida <= 0 || p.y > al + 40 * d) return false;
+
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, p.vida * 2.2);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.xiro);
+    // el papelito gira sobre sí mismo: se estrecha y se ensancha
+    ctx.scale(1, Math.abs(Math.cos(p.xiro * 1.7)) * .85 + .15);
+    ctx.fillStyle = p.cor;
+    ctx.fillRect(-p.ancho/2, -p.alto/2, p.ancho, p.alto);
+    ctx.restore();
+    return true;
+  });
+
+  if(anacos.length){ requestAnimationFrame(paso); }
+  else { animando = false; lenzo.classList.remove('tirando'); ctx.clearRect(0,0,an,al); }
+}
+
+function varrerConfeti(){
+  anacos = [];
+  if(!lenzo) return;
+  lenzo.classList.remove('tirando');
+  if(ctx && lenzo.width) ctx.clearRect(0, 0, lenzo.width, lenzo.height);
+}
+
 /* ══ Eventos ══════════════════════════════════════════════════════════ */
 
 $('g0').onclick = () => anotar(0,1);
@@ -495,16 +628,22 @@ $('cerrados').addEventListener('click', e => {
 // Doble toque: bloquea el zoom que se cuela entre pulsación y pulsación.
 document.addEventListener('gesturestart', e => e.preventDefault());
 
+// ── Pintar cuanto antes: nada de lo que viene después puede dejar la pantalla vacía ──
+pintar();
+
 /* ── Pantalla encendida mientras hay partida ───────────────────────── */
 let bloqueo = null;
 async function manterAcesa(){
   if(!('wakeLock' in navigator)) return;
   try{ bloqueo = await navigator.wakeLock.request('screen'); }catch(e){}
 }
-document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'visible') manterAcesa();
-});
-manterAcesa();
+try{
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible') manterAcesa();
+    else varrerConfeti();   // no reanudar una celebración vieja al volver
+  });
+  manterAcesa();
+}catch(e){}
 
 /* ── Manifiesto mínimo, para añadirla a la pantalla de inicio ──────── */
 try{
@@ -515,8 +654,6 @@ try{
   l.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(m));
   document.head.appendChild(l);
 }catch(e){}
-
-pintar();
 </script>
 </body>
 </html>
