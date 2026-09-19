@@ -20,6 +20,7 @@
 import type { Generator } from '../core/types.ts';
 import { flowField } from './flowField.ts';
 import { randomWalk } from './randomWalk.ts';
+import { selfAvoidingWalk } from './selfAvoidingWalk.ts';
 import { laserBounce } from './laserBounce.ts';
 import { curlFlow } from './curlFlow.ts';
 
@@ -43,6 +44,11 @@ export const REGISTRY: readonly GeneratorEntry[] = [
     generator: randomWalk as Generator<Record<string, any>>,
     title: 'Random Walk',
     description: 'Seeded random-walk paths — simple stepwise wandering lines that turn a little each step.',
+  },
+  {
+    generator: selfAvoidingWalk as Generator<Record<string, any>>,
+    title: 'Self-Avoiding Walk',
+    description: 'One or more seeded walks (persistent, noise-driven, or Lévy-flight heading) that steer away from their own trail, the page margin, and each other, growing organically until boxed in.',
   },
   {
     generator: laserBounce as Generator<Record<string, any>>,
