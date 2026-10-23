@@ -1,0 +1,322 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>El Impostor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: una sola columna centrada tipo app, pantallas que se sustituyen (config → pasar → ver → debate → solución) */
+:root{
+  --bg:#EFEDF6; --surface:#FFFFFF; --fg:#1C1733; --muted:#6A6487;
+  --accent:#E8A317; --accent-ink:#1C1733; --danger:#C2364A; --danger-ink:#FFFFFF; --line:#D9D5E8;
+  --display:"Bowlby One", "Arial Black", Impact, sans-serif;
+  --body:"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15112A; --surface:#211B3D; --fg:#F1EEFB; --muted:#A39CC4;
+  --accent:#F2B53A; --accent-ink:#15112A; --danger:#E2526A; --danger-ink:#FFFFFF; --line:#352D5C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15112A; --surface:#211B3D; --fg:#F1EEFB; --muted:#A39CC4;
+  --accent:#F2B53A; --accent-ink:#15112A; --danger:#E2526A; --danger-ink:#FFFFFF; --line:#352D5C; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.45;
+  padding-inline:16px;padding-block:20px;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+.app{max-width:440px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;gap:18px}
+h1{font-family:var(--display);font-weight:400;font-size:2.4rem;line-height:1;margin:6px 0 0;letter-spacing:.01em;text-wrap:balance}
+h1 span{color:var(--accent)}
+.sub{color:var(--muted);margin:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:16px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lbl{font-weight:700}
+.hint{color:var(--muted);font-size:.85rem}
+.stepper{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.stepper button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--fg);font-size:1.3rem;font-weight:700;cursor:pointer}
+.stepper output{min-width:2.4ch;text-align:center;font-family:var(--display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:8px 13px;font:500 .9rem var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+textarea{width:100%;min-height:64px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--fg);font:inherit;padding:10px;resize:vertical;margin-top:6px}
+.switch{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+.switch input{width:22px;height:22px;margin:1px 0 0;accent-color:var(--accent);flex-shrink:0}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:16px;font:700 1.1rem var(--body);cursor:pointer;background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.quiet{background:transparent;color:var(--muted);border:0;padding:10px;font-size:.95rem;font-weight:500}
+.btn.danger{background:var(--danger);color:var(--danger-ink)}
+.btn[data-armed]{outline:3px solid var(--danger);outline-offset:2px}
+button:focus-visible,textarea:focus-visible,input:focus-visible,.card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.err{color:var(--danger);font-weight:500;margin:0}
+
+/* Pantallas de juego */
+.stage{flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;text-align:center}
+.who{font-family:var(--display);font-weight:400;font-size:2.6rem;line-height:1.05;margin:0;text-wrap:balance;overflow-wrap:anywhere}
+.counter{color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;font-weight:700}
+.card{border-radius:24px;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;
+  background:var(--surface);border:2px dashed var(--line);cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.card .big{font-family:var(--display);font-size:2.3rem;line-height:1.1;overflow-wrap:anywhere}
+.card.word{border:2px solid var(--accent);cursor:default}
+.card.imp{background:var(--danger);border-color:var(--danger);color:var(--danger-ink);cursor:default}
+.card.imp .hint{color:inherit;opacity:.85}
+.eye{width:56px;height:56px;color:var(--accent)}
+.dots{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.order{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;counter-reset:o}
+.order li{counter-increment:o;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 8px;font-weight:500;font-size:.95rem}
+.order li::before{content:counter(o);display:inline-block;min-width:1.5em;margin-right:4px;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:700}
+.order li:first-child{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.order li:first-child::before{color:inherit}
+.clock{font-family:var(--display);font-size:3.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.clock.done{color:var(--danger)}
+.timer-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:no-preference){
+  .card{transition:transform .12s}.card:active{transform:scale(.98)}
+  .clock.done{animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{opacity:.35}}
+}
+</style>
+
+<div class="app" id="app"></div>
+
+<script>
+// Una sola lista de palabras de todo tipo, sin repetidas.
+const WORDS = [
+  "Paella", "Tortilla", "Croqueta", "Churros", "Gazpacho", "Empanada", "Pizza", "Sushi", "Lentejas", "Queso", "Chocolate", "Hamburguesa",
+  "Fabada", "Calamares", "Helado", "Pimientos de Padrón", "Jamón", "Flan", "Macarrones", "Palomitas", "Cocido", "Tarta", "Kebab", "Mejillones",
+  "Torrijas", "Bocadillo", "Sandía", "Ensaladilla", "Huevo frito", "Chorizo", "Playa", "Hospital", "Aeropuerto", "Biblioteca", "Cementerio", "Gimnasio",
+  "Supermercado", "Iglesia", "Cine", "Discoteca", "Estación de tren", "Faro", "Museo", "Cárcel", "Peluquería", "Universidad", "Camping", "Montaña",
+  "Piscina", "Castillo", "Mercado", "Farmacia", "Parque de atracciones", "Ascensor", "Barco", "Casino", "Hotel", "Desierto", "Granja", "Oficina",
+  "Pulpo", "Jirafa", "Pingüino", "Gallina", "Tiburón", "Murciélago", "Caracol", "Elefante", "Mosquito", "Caballo", "Delfín", "Oso",
+  "Loro", "Serpiente", "Vaca", "Cangrejo", "Búho", "Canguro", "Hormiga", "Gato", "Camello", "Tortuga", "Abeja", "Lobo",
+  "Medusa", "Cerdo", "Mono", "Avestruz", "Erizo", "Ballena", "Paraguas", "Cepillo de dientes", "Tijeras", "Llave", "Espejo", "Vela",
+  "Reloj", "Martillo", "Calcetín", "Almohada", "Bicicleta", "Mechero", "Gafas", "Escalera", "Sartén", "Mando a distancia", "Maleta", "Globo",
+  "Brújula", "Cuchara", "Peine", "Linterna", "Silla", "Mochila", "Anillo", "Lavadora", "Pelota", "Imán", "Bolígrafo", "Ventilador",
+  "Bombero", "Dentista", "Cocinero", "Profesor", "Fontanero", "Piloto", "Policía", "Peluquero", "Astronauta", "Granjero", "Médico", "Mecánico",
+  "Pescador", "Abogado", "Camarero", "Payaso", "Electricista", "Cartero", "Juez", "Arquitecto", "Panadero", "Socorrista", "Veterinario", "Taxista",
+  "Periodista", "Carnicero", "Detective", "Mago", "Jardinero", "Ingeniero", "Fútbol", "Tenis", "Natación", "Ajedrez", "Boxeo", "Surf",
+  "Esquí", "Baloncesto", "Golf", "Ciclismo", "Escalada", "Balonmano", "Atletismo", "Pádel", "Remo", "Judo", "Voleibol", "Rugby",
+  "Patinaje", "Bolos", "Billar", "Esgrima", "Dardos", "Waterpolo", "Maratón", "Karate", "Hípica", "Petanca", "Piragüismo", "Gimnasia",
+  "España", "Portugal", "Francia", "Italia", "Japón", "China", "México", "Argentina", "Brasil", "Egipto", "Australia", "Canadá",
+  "Rusia", "India", "Grecia", "Noruega", "Marruecos", "Cuba", "Alemania", "Inglaterra", "Irlanda", "Suiza", "Perú", "Turquía",
+  "Islandia", "Estados Unidos", "Kenia", "Tailandia", "Holanda", "Chile", "Engranaje", "Muelle", "Polea", "Turbina", "Grúa", "Tornillo",
+  "Válvula", "Taladro", "Cadena", "Arcoíris", "Volcán", "Fantasma", "Pirata", "Dinosaurio", "Tormenta", "Nieve", "Luna", "Sol",
+  "Semáforo", "Boda", "Cumpleaños", "Navidad", "Carnaval", "Vampiro", "Robot", "Tren", "Avión", "Submarino", "Cohete", "Guitarra",
+  "Piano", "Batería", "Bandera", "Corona", "Tesoro", "Mapa", "Isla", "Selva", "Puente", "Cuadro", "Selfie", "Wifi",
+  "Contraseña", "Videojuego", "Ataúd", "Dragón", "Sirena", "Espada", "Bruja"
+];
+const DEF = {players:6, impostors:1, names:"", custom:"", minutes:3};
+let cfg = loadCfg(), game = null, timer = null, lock = null, lastRender = 0;
+const app = document.getElementById("app");
+const EYE = `<svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`;
+
+/* ---------- utilidades ---------- */
+function loadCfg(){ try{ return Object.assign({},DEF,JSON.parse(localStorage.getItem("impostor-cfg")||"{}")); }catch(e){ return {...DEF}; } }
+function save(){ try{ localStorage.setItem("impostor-cfg",JSON.stringify(cfg)); }catch(e){} }
+function usedWords(){ try{ return new Set(JSON.parse(localStorage.getItem("impostor-used")||"[]")); }catch(e){ return new Set(); } }
+function saveUsed(s){ try{ localStorage.setItem("impostor-used",JSON.stringify([...s].slice(-300))); }catch(e){} }
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];} return a; };
+const parseList = s => [...new Set(s.split(/[\n,]/).map(x=>x.trim()).filter(Boolean))];
+const maxImp = () => Math.max(1, Math.floor((cfg.players-1)/2));
+const $ = id => document.getElementById(id);
+
+// Cada pantalla nueva ignora toques durante un instante: un doble toque no salta la siguiente pantalla.
+function render(html){ app.innerHTML = html; lastRender = Date.now(); window.scrollTo(0,0); }
+document.addEventListener("click", e=>{ if(Date.now()-lastRender < 450){ e.stopPropagation(); e.preventDefault(); } }, true);
+
+// Botón de dos toques: el primero pide confirmación, el segundo ejecuta.
+function twoStep(id, label, fn){
+  const b=$(id); if(!b) return;
+  b.onclick=()=>{
+    if(b.dataset.armed){ if(Date.now()-b._armedAt>400) fn(); return; }
+    const old=b.textContent; b.dataset.armed="1"; b._armedAt=Date.now(); b.textContent=label;
+    setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armed; b.textContent=old; } },3000);
+  };
+}
+
+// Mantener la pantalla encendida durante la partida, si el navegador lo permite.
+async function keepAwake(on){
+  try{
+    if(on && !lock && navigator.wakeLock){ lock = await navigator.wakeLock.request("screen"); lock.addEventListener("release",()=>{lock=null;}); }
+    if(!on && lock){ await lock.release(); lock=null; }
+  }catch(e){}
+}
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible" && game) keepAwake(true); });
+
+/* ---------- configuración ---------- */
+function setup(err=""){
+  game=null;
+  stopTimer(); keepAwake(false);
+  if(cfg.impostors>maxImp()) cfg.impostors=maxImp();
+  render(`
+    <header><h1>El <span>Impostor</span></h1>
+    <p class="sub">Todos ven la misma palabra menos el impostor. Pasad el móvil, describid la palabra por turnos y votad quién finge.</p></header>
+    <section class="panel">
+      <div class="row"><span class="lbl">Jugadores</span>
+        <div class="stepper"><button data-s="players" data-d="-1" aria-label="Menos jugadores">−</button><output id="pOut">${cfg.players}</output><button data-s="players" data-d="1" aria-label="Más jugadores">+</button></div></div>
+      <div class="row"><span><span class="lbl">Impostores</span><br><span class="hint" id="impHint">Máximo ${maxImp()} con ${cfg.players} jugadores</span></span>
+        <div class="stepper"><button data-s="impostors" data-d="-1" aria-label="Menos impostores">−</button><output>${cfg.impostors}</output><button data-s="impostors" data-d="1" aria-label="Más impostores">+</button></div></div>
+      <div><label class="lbl" for="names">Nombres</label> <span class="hint">opcional, en el orden en que estáis sentados</span>
+        <textarea id="names" placeholder="Ana, Luis, Marta…">${esc(cfg.names)}</textarea>
+        <span class="hint" id="namesHint"></span></div>
+    </section>
+    <section class="panel">
+      <div><label class="lbl" for="custom">Añadir palabras</label> <span class="hint">opcional, separadas por comas; se mezclan con las ${WORDS.length} que trae el juego</span>
+        <textarea id="custom" placeholder="Vigo, Castro, Rías Baixas…">${esc(cfg.custom)}</textarea></div>
+    </section>
+    ${err?`<p class="err" role="alert">${esc(err)}</p>`:""}
+    <button class="btn" id="start">Repartir papeles</button>`);
+
+  app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.s, d=+b.dataset.d; readInputs();
+    if(k==="players") cfg.players=Math.min(20,Math.max(3,cfg.players+d));
+    else cfg.impostors=Math.min(maxImp(),Math.max(1,cfg.impostors+d));
+    save(); setup();
+  });
+  // Al escribir nombres, el número de jugadores se ajusta solo.
+  $("names").oninput=()=>{
+    const n=parseList($("names").value).length;
+    if(n>=3 && n<=20){ cfg.players=n; $("pOut").textContent=n; $("impHint").textContent=`Máximo ${maxImp()} con ${n} jugadores`; }
+    namesHint();
+  };
+  namesHint();
+  $("start").onclick=()=>{ readInputs(); save(); start(); };
+}
+function namesHint(){
+  const n=parseList($("names").value).length, h=$("namesHint");
+  h.textContent = !n ? "" : n<3 ? `Hacen falta al menos 3 nombres (llevas ${n}).` :
+    n>20 ? "Máximo 20 jugadores." : n<cfg.players ? `Los ${cfg.players-n} que faltan saldrán como «Jugador N».` : "";
+}
+function readInputs(){
+  const n=$("names"), c=$("custom");
+  if(n) cfg.names=n.value;
+  if(c) cfg.custom=c.value;
+}
+
+/* ---------- partida ---------- */
+function start(){
+  const pool=[...new Set([...WORDS,...parseList(cfg.custom)])];
+  // Evitar repetir palabras ya jugadas; cuando se agotan, se vuelve a empezar.
+  let used=usedWords(), fresh=pool.filter(w=>!used.has(w));
+  if(!fresh.length){ pool.forEach(w=>used.delete(w)); fresh=pool; }
+  const pick=fresh[rnd(fresh.length)];
+  used.add(pick); saveUsed(used);
+
+  const given=parseList(cfg.names);
+  const names=Array.from({length:cfg.players},(_,i)=>given[i]||`Jugador ${i+1}`);
+  const imps=new Set(shuffle([...names.keys()]).slice(0,cfg.impostors));
+  // Quién empieza a hablar: cada impostor pesa un cuarto que un jugador normal
+  // (con 6 jugadores y 1 impostor, el impostor empieza ~5 % de las veces). Luego se sigue el orden de la mesa.
+  const IMP_WEIGHT=0.25;
+  const w=names.map((_,k)=>imps.has(k)?IMP_WEIGHT:1);
+  let r=Math.random()*w.reduce((a,b)=>a+b,0), first=0;
+  while(r>=w[first]){ r-=w[first]; first++; }
+  const order=names.map((_,k)=>names[(first+k)%names.length]);
+  game={word:pick, names, imps, order, i:0};
+  keepAwake(true);
+  pass();
+}
+
+function dots(){ return `<div class="dots" aria-hidden="true">${game.names.map((_,k)=>`<i class="${k<game.i?"on":""}"></i>`).join("")}</div>`; }
+
+function pass(){
+  render(`<div class="stage">
+    <div class="counter">Turno ${game.i+1} de ${game.names.length}</div>
+    <p class="sub">Pasa el móvil a</p>
+    <h2 class="who">${esc(game.names[game.i])}</h2>
+    <div class="card" id="c" role="button" tabindex="0">${EYE}<strong>Toca para ver tu papel</strong><span class="hint">Que nadie más mire la pantalla</span></div>
+    ${dots()}
+    <button class="btn quiet" id="quit">Cancelar partida</button></div>`);
+  const c=$("c");
+  c.onclick=show; c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); show(); } };
+  twoStep("quit","Toca otra vez para cancelar",setup);
+}
+
+function show(){
+  const imp=game.imps.has(game.i), n=game.imps.size;
+  const body = imp
+    ? `<div class="card imp"><span class="hint">${esc(game.names[game.i])}, eres</span><div class="big">EL IMPOSTOR</div>
+        <span class="hint">No sabes la palabra. Escucha y disimula.</span>
+        ${n>1?`<span class="hint">Hay ${n} impostores. No sabes quién es el otro.</span>`:""}</div>`
+    : `<div class="card word"><span class="hint">${esc(game.names[game.i])}, la palabra es</span><div class="big">${esc(game.word)}</div></div>`;
+  const last=game.i===game.names.length-1;
+  render(`<div class="stage"><div class="counter">Turno ${game.i+1} de ${game.names.length}</div>${body}
+    <button class="btn" id="next">${last?"Ocultar y empezar a jugar":"Ocultar y pasar el móvil"}</button></div>`);
+  $("next").onclick=()=>{ game.i++; last?play():pass(); };
+}
+
+function play(){
+  const mins=[1,2,3,5];
+  render(`<div class="stage">
+    <div class="counter">Todos tienen su papel</div>
+    <div class="box"><span class="hint">Orden para hablar</span><ol class="order">${game.order.map(n=>`<li>${esc(n)}</li>`).join("")}</ol>
+      <span class="hint">Cada uno dice una palabra o frase sobre la palabra secreta. Se pueden hacer varias vueltas.</span></div>
+    <div class="box" id="tbox">
+      <span class="hint">Tiempo de debate</span>
+      <div class="clock" id="clock" aria-live="polite">${fmt(cfg.minutes*60)}</div>
+      <div class="timer-row">${mins.map(m=>`<button class="chip" data-min="${m}" aria-pressed="${m===cfg.minutes}">${m} min</button>`).join("")}</div>
+      <button class="btn ghost" id="tgo">Empezar cuenta atrás</button>
+    </div>
+    <button class="btn danger" id="rev">Desvelar impostor</button>
+    <button class="btn ghost" id="again">Nueva ronda sin desvelar</button>
+    <button class="btn quiet" id="quit">Volver a la configuración</button></div>`);
+  app.querySelectorAll("[data-min]").forEach(b=>b.onclick=()=>{
+    cfg.minutes=+b.dataset.min; save(); stopTimer();
+    app.querySelectorAll("[data-min]").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    $("clock").textContent=fmt(cfg.minutes*60); $("clock").classList.remove("done"); $("tgo").textContent="Empezar cuenta atrás";
+  });
+  $("tgo").onclick=toggleTimer;
+  twoStep("rev","¿Seguro? Toca otra vez para desvelar",reveal);
+  twoStep("again","Toca otra vez para repartir de nuevo",start);
+  twoStep("quit","Toca otra vez para salir",setup);
+}
+
+/* ---------- cuenta atrás ---------- */
+const fmt=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+function toggleTimer(){
+  const btn=$("tgo"), clock=$("clock");
+  if(timer && !timer.paused){ timer.paused=true; clearInterval(timer.id); btn.textContent="Seguir"; return; }
+  if(!timer || timer.left<=0){ timer={left:cfg.minutes*60}; clock.classList.remove("done"); }
+  timer.paused=false; btn.textContent="Pausar"; beep(0); // desbloquea el audio con este toque
+  timer.id=setInterval(()=>{
+    timer.left--; if($("clock")) $("clock").textContent=fmt(Math.max(0,timer.left));
+    if(timer.left<=0){
+      clearInterval(timer.id); timer.paused=true;
+      if($("clock")) $("clock").classList.add("done");
+      if($("tgo")) $("tgo").textContent="Otra vez";
+      beep(1); try{ navigator.vibrate && navigator.vibrate([300,150,300]); }catch(e){}
+    }
+  },1000);
+}
+function stopTimer(){ if(timer){ clearInterval(timer.id); timer=null; } }
+let actx=null;
+function beep(audible){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(!audible) return actx.resume();
+    [0,0.35,0.7].forEach(t=>{
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.frequency.value=880; g.gain.setValueAtTime(0.25,actx.currentTime+t); g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+t+0.25);
+      o.connect(g).connect(actx.destination); o.start(actx.currentTime+t); o.stop(actx.currentTime+t+0.26);
+    });
+  }catch(e){}
+}
+
+/* ---------- solución ---------- */
+function reveal(){
+  stopTimer();
+  const imps=[...game.imps].map(k=>esc(game.names[k])).join(", ");
+  render(`<div class="stage">
+    <div class="box"><span class="counter">${game.imps.size>1?"Los impostores eran":"El impostor era"}</span><h2 class="who" style="color:var(--danger)">${imps}</h2></div>
+    <div class="box"><span class="counter">La palabra era</span><h2 class="who">${esc(game.word)}</h2></div>
+    <p class="sub">Si el impostor no ha sido descubierto, puede intentar adivinar la palabra para ganar.</p>
+    <button class="btn" id="again">Nueva ronda</button>
+    <button class="btn quiet" id="quit">Volver a la configuración</button></div>`);
+  $("again").onclick=start;
+  $("quit").onclick=()=>{ game=null; setup(); };
+}
+
+setup();
+</script>
+
+</body></html>
